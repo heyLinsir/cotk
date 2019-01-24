@@ -1,0 +1,5 @@
+{
+"MSCOCO": "http://images.cocodataset.org/annotations/annotations_trainval2017.zip",
+"OpenSubtitles": "http://opus.nlpl.eu/download.php?f=OpenSubtitles/v2018/xml/en.zip",
+"Ubuntu": "http://dataset.cs.mcgill.ca/ubuntu-corpus-1.0/ubuntu_dialogs.tgz"
+}
