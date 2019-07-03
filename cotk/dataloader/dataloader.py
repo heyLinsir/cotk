@@ -283,7 +283,7 @@ class BERTGenerationBase(GenerationBase):
 	def __init__(self, \
 					ext_vocab=None, \
 					key_name=None, \
-					bert_tokenize_name='bert-base-uncased'):
+					bert_model_name='bert-base-uncased'):
 
 		# initialize by default value. (can be overwritten by subclass)
 		self.ext_vocab = ext_vocab or ["<pad>", "<unk>", "<go>", "<eos>"]
@@ -293,86 +293,22 @@ class BERTGenerationBase(GenerationBase):
 
 		super().__init__(self.ext_vocab, key_name)
 
-		self.tokenizer = tokenizer = BertTokenizer.from_pretrained(bert_tokenize_name)
+		self.tokenizer = BertTokenizer.from_pretrained(bert_model_name)
 
-	def convert_tokens_to_bert_ids(sent):
-		self.tokenizer.convert_tokens_to_ids(sen)
+	def convert_tokens_to_bert_ids(self, sent):
+		self.tokenizer.convert_tokens_to_ids(sent)
 
-	def convert_bert_ids_to_dl_ids(sent):
-		
+	def convert_bert_ids_to_ids(self, sent, invalid_vocab=False):
+		pass
 
-	def convert_tokens_to_
+	def convert_tokens_to_ids(self, sent, invalid_vocab=False):
+		pass
 
-	def sen_to_index(self, sen, invalid_vocab=False):
-		'''Convert a sentence from string to index representation.
+	def convert_ids_to_tokens(self, index, trim=True):
+		pass
 
-		Arguments:
-			sen (list): a list of str, representing each token of the sentences.
-			invalid_vocab (bool): whether to provide invalid vocabs.
-					If ``False``, invalid vocabs will be replaced by `unk_id`.
-					If ``True``, invalid vocabs will using their own id.
-					Default: `False`
+	def convert_ids_to_bert_ids(self, index):
+		pass
 
-		Examples:
-			>>> # vocab_list = ["<pad>", "<unk>", "<go>", "<eos>", "I", "have",
-			>>> #	"been", "to", "Sichuan"]
-			>>> dataloader.sen_to_index(
-			...	["<go>", "I", "have", "been", "to", "Sichuan", "<eos>"])
-			>>> [2, 4, 5, 6, 7 ,8 ,3]
-
-		TODO:
-			* add invalid vocab example
-		'''
-		if invalid_vocab:
-			return list(map(lambda word: self.word2id.get(word, self.unk_id), sen))
-		else:
-			return list(map(self._valid_word2id, sen))
-
-	def trim_index(self, index):
-		'''Trim index. There will be two steps:
-
-			* If there is an end token (`<eos>`) in sentences,
-			  find first end token and abandon words after it (included the end token).
-			* ignore `<pad>` s at the end of the sentence.
-
-		Arguments:
-			index (list): a list of int
-
-		Examples:
-
-			>>> # all_vocab_list = ["<pad>", "<unk>", "<go>", "<eos>", "I", "have",
-			>>> #	"been", "to", "Sichuan"]
-			>>> dataloader.trim_index(
-			...	[2, 4, 5, 6, 7, 8, 0, 0, 3, 4, 3, 0])
-			... # <go> I have been to Sichuan <pad> <pad> <eos> I <eos> <pad>
-			>>> [2, 4, 5, 6, 7, 8] # <go> I have been to Sichuan
-		'''
-
-		index = trim_before_target(list(index), self.eos_id)
-		idx = len(index)
-		while idx > 0 and index[idx-1] == self.pad_id:
-			idx -= 1
-		index = index[:idx]
-		return index
-
-	def index_to_sen(self, index, trim=True):
-		'''Convert a sentence from index to string representation.
-
-		Arguments:
-				index (list): a list of int.
-				trim (bool): if True, call :func:`trim_index` before convertion.
-
-		Examples:
-			>>> # all_vocab_list = ["<pad>", "<unk>", "<go>", "<eos>", "I", "have",
-			>>> #	"been", "to", "Sichuan"]
-			>>> dataloader.index_to_sen(
-			...		[2, 4, 5, 6, 7, 8, 3, 0, 0], trim = True)
-			>>> ["<go>", "I", "have", "been", "to", "Sichuan"]
-			>>> dataloader.index_to_sen(
-			...		[2, 4, 5, 6, 7, 8, 3, 0, 0], trim = False)
-			>>> ["<go>", "I", "have", "been", "to", "Sichuan", "<eos>", "<pad>", "<pad>"]
-
-		'''
-		if trim:
-			index = self.trim_index(index)
-		return list(map(lambda word: self.all_vocab_list[word], index))
+	def convert_bert_ids_to_tokens(self, sent, trim=True):
+		pass
