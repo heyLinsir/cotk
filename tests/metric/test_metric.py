@@ -355,7 +355,7 @@ class TestBleuPrecisionRecallMetric():
 		dataloader = FakeMultiDataloader()
 
 		if ngram not in range(1, 5):
-			with pytest.raises(ValueError, match="ngram should belong to \[1, 4\]"):
+			with pytest.raises(ValueError, match=r"ngram should belong to \[1, 4\]"):
 				bprm = BleuPrecisionRecallMetric(dataloader, ngram, 3)
 			return
 
@@ -624,6 +624,7 @@ class TestPerplexityMetric():
 			elif include_invalid != (gen_prob_vocab == 'all_vocab'):
 				with pytest.raises(ValueError):
 					pm.forward(data)
+					pm.close()
 			else:
 				pm.forward(data)
 				assert np.isclose(pm.close()['perplexity'], \
@@ -631,8 +632,9 @@ class TestPerplexityMetric():
 													  reference_key, reference_len_key, gen_prob_key))
 		else:
 			with pytest.raises(ValueError, \
-							   match='data\[gen_log_prob_key\] must be processed after log_softmax.'):
+							   match=r'data\[gen_log_prob_key\] must be processed after log_softmax.'):
 				pm.forward(data)
+				pm.close()
 		assert same_dict(data, _data)
 
 multiperplexity_test_parameter = generate_testcase(\
@@ -752,6 +754,7 @@ class TestMultiTurnPerplexityMetric:
 			elif include_invalid != (gen_prob_vocab == 'all_vocab'):
 				with pytest.raises(ValueError):
 					mtpm.forward(data)
+					mtpm.close()
 			else:
 				mtpm.forward(data)
 				assert np.isclose(mtpm.close()['perplexity'], \
@@ -759,8 +762,9 @@ class TestMultiTurnPerplexityMetric:
 													  reference_key, reference_len_key, gen_prob_key))
 		else:
 			with pytest.raises(ValueError, \
-							   match='data\[gen_log_prob_key\] must be processed after log_softmax.'):
+							   match=r'data\[gen_log_prob_key\] must be processed after log_softmax.'):
 				mtpm.forward(data)
+				mtpm.close()
 		assert same_dict(data, _data)
 
 
@@ -871,7 +875,7 @@ class TestSelfBleuCorpusMetric:
 		bleu_irl = []
 		for i in range(len(gens)):
 			bleu_irl.append(sentence_bleu(
-				refs[:i]+refs[i+1:],refs[i], smoothing_function=SmoothingFunction().method7))
+				refs[:i]+refs[i+1:],refs[i], smoothing_function=SmoothingFunction().method1))
 		return 1.0 * sum(bleu_irl) / len(bleu_irl)
 
 	@pytest.mark.parametrize('argument, shape, type, gen_len', self_bleu_test_parameter)
@@ -899,15 +903,15 @@ class TestSelfBleuCorpusMetric:
 		assert np.isclose(bcm.close()['self-bleu'], self.get_self_bleu(dataloader, data, gen_key))
 		assert same_dict(data, _data)
 
-	def test_self_bleu_bug(self):
-		dataloader = FakeDataLoader()
-		gen = [[1]]
-		data = {'gen': gen}
-		bcm = SelfBleuCorpusMetric(dataloader)
+	# def test_self_bleu_bug(self):
+	# 	dataloader = FakeDataLoader()
+	# 	gen = [[1]]
+	# 	data = {'gen': gen}
+	# 	bcm = SelfBleuCorpusMetric(dataloader)
 
-		with pytest.raises(ZeroDivisionError):
-			bcm.forward(data)
-			bcm.close()
+	# 	with pytest.raises(ZeroDivisionError):
+	# 		bcm.forward(data)
+	# 		bcm.close()
 
 fwbw_bleu_test_parameter = generate_testcase(\
 	(zip(test_argument), "add"),
@@ -927,9 +931,9 @@ class TestFwBwBleuCorpusMetric:
 			gens.append(gen_sen_processed)
 		bleu_irl_bw, bleu_irl_fw = [], []
 		for i in range(len(gens)):
-			bleu_irl_fw.append(sentence_bleu(refs, gens[i], smoothing_function=SmoothingFunction().method7))
+			bleu_irl_fw.append(sentence_bleu(refs, gens[i], smoothing_function=SmoothingFunction().method1))
 		for i in range(len(refs)):
-			bleu_irl_bw.append(sentence_bleu(gens, refs[i], smoothing_function=SmoothingFunction().method7))
+			bleu_irl_bw.append(sentence_bleu(gens, refs[i], smoothing_function=SmoothingFunction().method1))
 
 		fw_bleu = (1.0 * sum(bleu_irl_fw) / len(bleu_irl_fw))
 		bw_bleu = (1.0 * sum(bleu_irl_bw) / len(bleu_irl_bw))
@@ -991,18 +995,18 @@ class TestFwBwBleuCorpusMetric:
 		assert np.isclose(bcm.close()['fw-bw-bleu'], self.get_bleu(dataloader, data, reference_key, gen_key))
 		assert same_dict(data, _data)
 
-	def test_fwbwbleu_bug(self):
-		dataloader = FakeDataLoader()
-		ref = [[2, 1, 3]]
-		gen = [[1]]
-		reference_key = 'resp_allvocabs'
-		data = {reference_key: ref, 'gen': gen}
-		dataloader.data["test"][reference_key] = data[reference_key]
-		bcm = FwBwBleuCorpusMetric(dataloader, reference_key)
+	# def test_fwbwbleu_bug(self):
+	# 	dataloader = FakeDataLoader()
+	# 	ref = [[2, 1, 3]]
+	# 	gen = [[1]]
+	# 	reference_key = 'resp_allvocabs'
+	# 	data = {reference_key: ref, 'gen': gen}
+	# 	dataloader.data["test"][reference_key] = data[reference_key]
+	# 	bcm = FwBwBleuCorpusMetric(dataloader, reference_key)
 
-		with pytest.raises(ZeroDivisionError):
-			bcm.forward(data)
-			bcm.close()
+	# 	with pytest.raises(ZeroDivisionError):
+	# 		bcm.forward(data)
+	# 		bcm.close()
 
 
 multi_bleu_test_parameter = generate_testcase(\
@@ -1246,7 +1250,7 @@ class TestMultiTurnDialogRecorder:
 		else:
 			if turn_len == 'unequal':
 				data[reference_key][0] = data[reference_key][0][1:]
-				with pytest.raises(ValueError, match="Reference turn num \d* != gen turn num \d*."):
+				with pytest.raises(ValueError, match=r"Reference turn num \d* != gen turn num \d*."):
 					mtbr.forward(data)
 				return
 			else:
