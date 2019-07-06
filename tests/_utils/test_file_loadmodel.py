@@ -4,7 +4,8 @@ import requests_mock
 import shutil
 import os
 
-from cotk._utils.file_utils import load_model_from_url, _get_file_sha256
+from cotk._utils.file_utils import _get_file_sha256
+from cotk._utils.downloader import load_model_from_url
 
 @pytest.fixture
 def r_mock():
