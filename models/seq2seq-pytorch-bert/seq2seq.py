@@ -9,7 +9,7 @@ import numpy as np
 import tqdm
 
 from utils import Storage, cuda, BaseModel, SummaryHelper, get_mean, storage_to_list, \
-	CheckpointManager, LongTensor
+	CheckpointManager
 from network import Network
 
 class Seq2seq(BaseModel):
@@ -58,6 +58,8 @@ class Seq2seq(BaseModel):
 		data.batch_size = data.post.shape[0]
 		data.post = cuda(torch.LongTensor(data.post.transpose(1, 0))) # length * batch_size
 		data.resp = cuda(torch.LongTensor(data.resp.transpose(1, 0))) # length * batch_size
+		data.post_bert = cuda(torch.LongTensor(data.post_bert.transpose(1, 0))) # length * batch_size
+		data.resp_bert = cuda(torch.LongTensor(data.resp_bert.transpose(1, 0))) # length * batch_size
 		return incoming
 
 	def get_next_batch(self, dm, key, restart=True):
@@ -170,9 +172,9 @@ class Seq2seq(BaseModel):
 				self.net.forward(incoming)
 				gen_log_prob = nn.functional.log_softmax(incoming.gen.w, -1)
 			data = incoming.data
-			data.resp_allvocabs = LongTensor(incoming.data.resp_allvocabs)
+			data.resp = incoming.data.resp_allvocabs
 			data.resp_length = incoming.data.resp_length
-			data.gen_log_prob = gen_log_prob.transpose(1, 0)
+			data.gen_log_prob = gen_log_prob.transpose(1, 0).detach().cpu().numpy()
 			metric1.forward(data)
 		res = metric1.close()
 
@@ -184,6 +186,8 @@ class Seq2seq(BaseModel):
 			with torch.no_grad():
 				self.net.detail_forward(incoming)
 			data = incoming.data
+			data.resp = incoming.data.resp_allvocabs
+			data.post = incoming.data.post_allvocabs
 			data.gen = incoming.gen.w_o.detach().cpu().numpy().transpose(1, 0)
 			metric2.forward(data)
 		res.update(metric2.close())
