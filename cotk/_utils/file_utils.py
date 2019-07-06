@@ -276,7 +276,7 @@ def load_file_from_url(url, force=False, cache_dir=CACHE_DIR):
 	parts = urlparse(url)
 	filename = os.path.basename(parts.path)
 
-	cache_dir = os.path.join(cache_dir, 'models')
+	cache_dir = os.path.join(cache_dir, 'files')
 
 	if os.path.exists(cache_dir) and force:
 		shutil.rmtree(cache_dir)
