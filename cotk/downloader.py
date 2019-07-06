@@ -7,9 +7,10 @@ Copyright by the AllenNLP authors.
 from ._utils.file_utils import load_file_from_url as _load_file_from_url
 
 def load_file_from_url(url, force=False, cache_dir=None):
-	'''Download a file from the given ``url``. If the file has been downloaded, it will be cached in ``cache_dir``.
-	However, the function can't check whether the file from ``url`` is changed online. If you have the wrong cache,
-	you may manually delete the file cached located by the return value.
+	'''Download a file from the given ``url``. If the file has been downloaded, it will be
+	cached in ``cache_dir``. However, the function can't check whether the file from ``url``
+	is changed online. If you have the wrong cache,	you may manually delete the file cached
+	located by the return value.
 
 	Arguments:
 		url(str): A url indicating the file online.

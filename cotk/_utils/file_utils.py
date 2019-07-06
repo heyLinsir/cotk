@@ -270,22 +270,7 @@ def import_local_resources(file_id, local_path, cache_dir=CACHE_DIR, \
 		raise ValueError("bad hashtag of {}".format(res_name))
 
 def load_file_from_url(url, force=False, cache_dir=CACHE_DIR):
-	'''Download a file from the given ``url``. If the file has been downloaded, it will be cached in ``cache_dir``.
-	However, the function can't check whether the file from ``url`` is changed online. If you have the wrong cache,
-	you may manually delete the file cached located by the return value.
-
-	Arguments:
-		url(str): A url indicating the file online.
-		force(bool): Force to download and ignore the existing file.
-		cache_dir(str, option): A path indicating where the cache place. If ``None``, a default cache path is
-			used.
-
-	Returns:
-		(str) The local path of downloaded model.
-
-	Example:
-		>>> load_model_from_url('https://s3.amazonaws.com/pytorch/models/resnet18-5c106cde.pth')
-		>>> {CACHE_DIR}/resnet18-5c106cde.pth
+	'''See cotk.downloader.load_file_from_url.
 	'''
 
 	parts = urlparse(url)
