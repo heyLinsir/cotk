@@ -5,7 +5,6 @@ importing datasets and wordvectors automatically.
 
 from .file_utils import get_resource_file_path, import_local_resources
 from .resource_processor import ResourceProcessor, DefaultResourceProcessor
-from .downloader import load_model_from_url
 from ._utils import trim_before_target
 from .hooks import start_recorder, close_recorder
 
