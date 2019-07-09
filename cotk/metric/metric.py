@@ -8,6 +8,7 @@ import multiprocessing
 from multiprocessing import Pool
 import numpy as np
 import tqdm
+import nltk
 from nltk.translate.bleu_score import corpus_bleu, sentence_bleu, SmoothingFunction
 from .._utils.unordered_hash import UnorderedSha256
 from .._utils.imports import DummyObject
@@ -1364,3 +1365,53 @@ class MetricChain(MetricBase):
 		for metric in self.metric_list:
 			res.update(metric.close())
 		return res
+
+class AccuracyMetric(MetricBase):
+	'''Metric for calculating BLEU.
+
+	Arguments:
+		{MetricBase.DATALOADER_ARGUMENTS}
+		{MetricBase.REFERENCE_ALLVOCABS_KEY_ARGUMENTS}
+		{MetricBase.GEN_KEY_ARGUMENTS}
+	'''
+
+	def __init__(self, dataloader,\
+			label_key="label", prediction_key="prediction"):
+		super().__init__()
+		self.dataloader = dataloader
+		self.label_key = label_key
+		self.prediction_key = prediction_key
+		self.refs = []
+		self.hyps = []
+
+	def forward(self, data):
+		'''Processing a batch of data.
+
+		Arguments:
+			data (dict): A dict at least contains the following keys:
+
+				{MetricBase.FORWARD_REFERENCE_ALLVOCABS_ARGUMENTS}
+				{MetricBase.FORWARD_GEN_ARGUMENTS}
+		'''
+		super().forward(data)
+		self.hyps.extend(data[self.prediction_key])
+		self.refs.extend(data[self.label_key])
+		if len(data[self.prediction_key]) != len(data[self.label_key]):
+			raise ValueError("Batch num is not matched.")
+
+		self._hash_relevant_data(data[self.label_key])
+
+	def close(self):
+		'''
+		Returns:
+			(dict): Return a dict which contains
+
+			* **bleu**: bleu value.
+			* **bleu hashvalue**: hash value for bleu metric, same hash value stands
+			  for same evaluation settings.
+		'''
+		result = super().close()
+		result.update({"accuracy": \
+			nltk.classify.accuracy(self.refs, self.hyps), \
+			"accuracy hashvalue": self._hashvalue()})
+		return result

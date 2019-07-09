@@ -8,7 +8,8 @@ your model from one dataset to other datasets.
 from .dataloader import Dataloader, GenerationBase
 from .single_turn_dialog import SingleTurnDialog, OpenSubtitles
 from .multi_turn_dialog import MultiTurnDialog, UbuntuCorpus, SwitchboardCorpus
-from .language_generation import LanguageGeneration, MSCOCO
+from .sentence_classification import SentenceClassification, SST
 
 __all__ = ['Dataloader', 'SingleTurnDialog', 'OpenSubtitles', 'MultiTurnDialog', 'UbuntuCorpus', \
-           'SwitchboardCorpus', 'LanguageGeneration', 'MSCOCO', 'GenerationBase']
+           'SwitchboardCorpus', 'LanguageGeneration', 'MSCOCO', 'GenerationBase', \
+           'SentenceClassification', 'SST']

@@ -285,3 +285,29 @@ class GenerationBase(Dataloader):
 		if trim:
 			index = self.trim_index(index)
 		return list(map(lambda word: self.all_vocab_list[word], index))
+
+class ClassificationBase(GenerationBase):
+	r"""Base class for all language generation datasets. This is an abstract class.
+
+	Arguments:{ARGUMENTS}
+
+	Attributes:{ATTRIBUTES}
+	"""
+
+	ARGUMENTS = r"""
+			ext_vocab (list): special tokens. default: `["<pad>", "<unk>", "<go>", "<eos>"]`
+			key_name (list): name of subsets of the data. default: `["train", "dev", "test"]`
+	"""
+	ATTRIBUTES = r"""
+			ext_vocab (list): special tokens, be placed at beginning of `vocab_list`.
+					For example: `["<pad>", "<unk>", "<go>", "<eos>"]`
+			pad_id (int): token for padding, always equal to `0`
+			unk_id (int): token for unknown words, always equal to `1`
+			go_id (int): token at the beginning of sentences, always equal to `2`
+			eos_id (int): token at the end of sentences, always equal to `3`
+			key_name (list): name of subsets of the data. For example: `["train", "dev", "test"]`
+			all_vocab_list (list): vocabulary list of the datasets,
+					including valid vocabs and invalid vocabs.
+			word2id (dict): a dict mapping all vocab to index.
+					Maybe you want to use :meth:`sen_to_index` instead.
+	"""
