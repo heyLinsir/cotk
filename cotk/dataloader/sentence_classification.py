@@ -92,7 +92,7 @@ class SentenceClassification(ClassificationBase):
 			A :class:`.metric.MetricChain` object.
 		'''
 		metric = MetricChain()
-		metric.add_metric(PerplexityMetric(self, \
+		metric.add_metric(AccuracyMetric(self, \
 					label_key='label', \
 					prediction_key=prediction_key))
 		return metric
