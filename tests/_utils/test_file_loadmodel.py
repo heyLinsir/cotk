@@ -18,11 +18,10 @@ class TestFileUtils():
 		data_dir = './tests/_utils/data'
 		res_path = load_file_from_url('https://cotk-data.s3-ap-northeast-1.amazonaws.com/test.zip', cache_dir=cache_dir)
 
-		with pytest.raises(ValueError) as excinfo:
-			load_file_from_url('https://cotk-data.s3-ap-northeast-1.amazonaws.com/test.zip', cache_dir=cache_dir)
-		assert "model existed. If you want to delete the existing model." in str(excinfo.value)
+		res_path2 = load_file_from_url('https://cotk-data.s3-ap-northeast-1.amazonaws.com/test.zip', cache_dir=cache_dir)
+		assert res_path == res_path2
 
-		assert res_path == os.path.join(cache_dir, 'models', 'test.zip')
+		assert res_path == os.path.join(cache_dir, 'files', 'test.zip')
 		assert _get_file_sha256(res_path) == _get_file_sha256(os.path.join(data_dir, 'test.zip'))
 
 		shutil.rmtree(cache_dir)
