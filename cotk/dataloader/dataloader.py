@@ -460,7 +460,7 @@ class BERTGenerationBase(LanguageProcessingBase):
 				* resp (:class:`numpy.array`): A 2-d padding array containing id of words in responses.
 			  	  Only provide valid vocabs. `unk_id` will be used if a word is not valid.
 			  	  Size: `[batch_size, max(sent_length)]`
-			  	* resp_bert (:class:`numpy.array`): 
+			  	* resp_bert (:class:`numpy.array`):
 			  	  A 2-d padding array containing BERT id of words in responses.
 			  	  Size: `[batch_size, max(sent_length)]`
 				* resp_allvocabs (:class:`numpy.array`):
