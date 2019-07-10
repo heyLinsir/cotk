@@ -6,12 +6,12 @@ import numpy as np
 
 # from .._utils.unordered_hash import UnorderedSha256
 from .._utils.file_utils import get_resource_file_path
-from .dataloader import GenerationBase
+from .dataloader import LanguageProcessingBase
 from ..metric import MetricChain, PerplexityMetric, LanguageGenerationRecorder, \
 	FwBwBleuCorpusMetric, SelfBleuCorpusMetric
 
 # pylint: disable=W0223
-class LanguageGeneration(GenerationBase):
+class LanguageGeneration(LanguageProcessingBase):
 	r"""Base class for language modelling datasets. This is an abstract class.
 
 	This class is supported for language modeling tasks or language generation tasks
@@ -22,8 +22,8 @@ class LanguageGeneration(GenerationBase):
 	Attributes:{ATTRIBUTES}
 	"""
 
-	ARGUMENTS = GenerationBase.ARGUMENTS
-	ATTRIBUTES = GenerationBase.ATTRIBUTES
+	ARGUMENTS = LanguageProcessingBase.ARGUMENTS
+	ATTRIBUTES = LanguageProcessingBase.ATTRIBUTES
 
 	def get_batch(self, key, index):
 		'''Get a batch of specified `index`.

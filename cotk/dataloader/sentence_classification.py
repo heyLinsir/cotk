@@ -6,11 +6,11 @@ import numpy as np
 
 # from .._utils.unordered_hash import UnorderedSha256
 from .._utils.file_utils import get_resource_file_path
-from .dataloader import ClassificationBase
+from .dataloader import LanguageProcessingBase
 from ..metric import MetricChain, AccuracyMetric
 
 # pylint: disable=W0223
-class SentenceClassification(ClassificationBase):
+class SentenceClassification(LanguageProcessingBase):
 	r"""Base class for sentence classification datasets. This is an abstract class.
 
 	Arguments:{ARGUMENTS}
@@ -18,8 +18,8 @@ class SentenceClassification(ClassificationBase):
 	Attributes:{ATTRIBUTES}
 	"""
 
-	ARGUMENTS = ClassificationBase.ARGUMENTS
-	ATTRIBUTES = ClassificationBase.ATTRIBUTES
+	ARGUMENTS = LanguageProcessingBase.ARGUMENTS
+	ATTRIBUTES = LanguageProcessingBase.ATTRIBUTES
 
 	def get_batch(self, key, index):
 		'''Get a batch of specified `index`.
@@ -81,13 +81,13 @@ class SentenceClassification(ClassificationBase):
 		return res
 
 	def get_accuracy_metric(self, prediction_key="prediction"):
-		'''Get metrics for teacher-forcing. In other words, this function
-		provides metrics for language modelling task.
+		'''Get metrics for accuracy. In other words, this function
+		provides metrics for sentence classification task.
 		It contains:
-		* :class:`.metric.PerplexityMetric`
+		* :class:`.metric.AccuracyMetric`
 		Arguments:
-			gen_log_prob_key (str): The key of predicted log probablilty over words.
-				Refer to :class:`.metric.PerplexityMetric`. Default: ``gen_log_prob``.
+			prediction_key (str): The key of prediction over sentences.
+				Refer to :class:`.metric.AccuracyMetric`. Default: ``prediction``.
 		Returns:
 			A :class:`.metric.MetricChain` object.
 		'''
@@ -144,7 +144,7 @@ class SST(SentenceClassification):
 			f_file = open("%s/%s.txt" % (self._file_path, key))
 			origin_data[key] = {}
 			_origin_data = list( \
-				map(lambda line: parseline(line), f_file.readlines()))
+				map(parseline, f_file.readlines()))
 			origin_data[key]['sent'] = list( \
 				map(lambda line: line[1], _origin_data))
 			origin_data[key]['label'] = list( \
