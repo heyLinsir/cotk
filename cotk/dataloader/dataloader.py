@@ -295,8 +295,8 @@ except ImportError as err:
 	from .._utils.imports import DummyObject
 	BertTokenizer = DummyObject(err)
 
-class BERTGenerationBase(LanguageProcessingBase):
-	r"""Base class for all BERT-based language generation datasets with BERT tokenizer.
+class BERTLanguageProcessingBase(LanguageProcessingBase):
+	r"""Base class for all BERT-based language processing with BERT tokenizer.
 	This is an abstract class.
 
 	Arguments:{ARGUMENTS}
@@ -450,22 +450,22 @@ class BERTGenerationBase(LanguageProcessingBase):
 				* post (:class:`numpy.array`): A 2-d padding array containing id of words in posts.
 			  	  Only provide valid words. `unk_id` will be used if a word is not valid.
 			  	  Size: `[batch_size, max(sent_length)]`
-			  	* post_bert (:class:`numpy.array`): A 2-d padding array containing BERT id of words in posts.
-			  	  Size: `[batch_size, max(sent_length)]`
 				* post_allvocabs (:class:`numpy.array`): A 2-d padding array containing id of words in posts.
 			  	  Provide both valid and invalid vocabs.
+			  	  Size: `[batch_size, max(sent_length)]`
+			  	* post_bert (:class:`numpy.array`): A 2-d padding array containing BERT id of words in posts.
 			  	  Size: `[batch_size, max(sent_length)]`
 				* resp_length (:class:`numpy.array`): A 1-d array, the length of response in each batch.
 			  	  Size: `[batch_size]`
 				* resp (:class:`numpy.array`): A 2-d padding array containing id of words in responses.
 			  	  Only provide valid vocabs. `unk_id` will be used if a word is not valid.
 			  	  Size: `[batch_size, max(sent_length)]`
-			  	* resp_bert (:class:`numpy.array`):
-			  	  A 2-d padding array containing BERT id of words in responses.
-			  	  Size: `[batch_size, max(sent_length)]`
 				* resp_allvocabs (:class:`numpy.array`):
 				  A 2-d padding array containing id of words in responses.
 			  	  Provide both valid and invalid vocabs.
+			  	  Size: `[batch_size, max(sent_length)]`
+			  	* resp_bert (:class:`numpy.array`):
+			  	  A 2-d padding array containing BERT id of words in responses.
 			  	  Size: `[batch_size, max(sent_length)]`
 		'''
 		if key not in self.key_name:
@@ -494,8 +494,6 @@ class BERTGenerationBase(LanguageProcessingBase):
 		res_post[res_post >= self.valid_vocab_len] = self.unk_id
 		res_resp[res_resp >= self.valid_vocab_len] = self.unk_id
 
-		res["post_allvocabs_bert"] = res_post_bert.copy()
-		res["resp_allvocabs_bert"] = res_resp_bert.copy()
 		return res
 
 	def get_teacher_forcing_metric(self, gen_log_prob_key="gen_log_prob"):

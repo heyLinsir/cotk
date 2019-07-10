@@ -2,7 +2,7 @@
 import logging
 import json
 
-from cotk.dataloader import SingleTurnDialog, BERTGenerationBase
+from cotk.dataloader import SingleTurnDialog, BERTLanguageProcessingBase
 from cotk.wordvector import WordVector, Glove
 
 from utils import debug, try_cache, cuda_init, Storage
@@ -25,7 +25,7 @@ def main(args, load_exclude_set, restoreCallback):
 	volatile.load_exclude_set = load_exclude_set
 	volatile.restoreCallback = restoreCallback
 
-	data_class = BERTGenerationBase.load_class('BERT' + args.dataset)
+	data_class = BERTLanguageProcessingBase.load_class('BERT' + args.dataset)
 	data_arg = Storage()
 	data_arg.file_id = args.datapath
 	data_arg.bert_vocab = args.bert_vocab

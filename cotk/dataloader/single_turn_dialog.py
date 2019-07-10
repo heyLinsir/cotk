@@ -11,7 +11,7 @@ import tqdm
 import numpy as np
 
 from .._utils.file_utils import get_resource_file_path
-from .dataloader import LanguageProcessingBase, BERTGenerationBase
+from .dataloader import LanguageProcessingBase, BERTLanguageProcessingBase
 from ..metric import MetricChain, PerplexityMetric, BleuCorpusMetric, SingleTurnDialogRecorder
 
 # pylint: disable=W0223
@@ -247,7 +247,7 @@ class OpenSubtitles(SingleTurnDialog):
 					(key, invalid_num / vocab_num, oov_num / vocab_num, max(length), cut_num / vocab_num))
 		return vocab_list, valid_vocab_len, data, data_size
 
-class BERTOpenSubtitles(BERTGenerationBase):
+class BERTOpenSubtitles(BERTLanguageProcessingBase):
 	'''A dataloader for OpenSubtitles dataset.
 
 	Arguments:
@@ -263,7 +263,7 @@ class BERTOpenSubtitles(BERTGenerationBase):
 		bert_vocab (str): The vocab file of BERT used for this task. It should be a bert model name
 							or local path. Default: `bert-base-uncased`.
 
-	Refer to :class:`.BERTGenerationBase` for attributes and methods.
+	Refer to :class:`.BERTLanguageProcessingBase` for attributes and methods.
 
 	References:
 		[1] http://opus.nlpl.eu/OpenSubtitles.php
@@ -317,7 +317,7 @@ class BERTOpenSubtitles(BERTGenerationBase):
 		return post_tokens, post_bert_ids, resp_tokens, resp_bert_ids
 
 	def _load_data(self):
-		r'''Loading dataset, invoked by `BERTGenerationBase.__init__`
+		r'''Loading dataset, invoked by `BERTLanguageProcessingBase.__init__`
 		'''
 		print('begin load data...')
 		begin_time = time.time()
