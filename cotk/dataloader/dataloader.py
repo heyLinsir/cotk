@@ -4,8 +4,7 @@ A module for dataloader
 import random
 from .._utils import trim_before_target
 from .._utils.metaclass import DocStringInheritor, LoadClassInterface
-from ..metric import MetricChain, PerplexityMetric, LanguageGenerationRecorder, \
-	FwBwBleuCorpusMetric, SelfBleuCorpusMetric
+from ..metric import MetricChain, PerplexityMetric, BleuCorpusMetric, SingleTurnDialogRecorder
 
 class Dataloader(LoadClassInterface, metaclass=DocStringInheritor):
 	'''Base class of Dataloader.
