@@ -106,8 +106,8 @@ class SST(SentenceClassification):
 			valid_vocab_times (int): A cut-off threshold of valid tokens. All tokens appear
 					not less than `min_vocab_times` in **training set** will be marked as valid words.
 					Default: 10.
-			max_sen_length (int): All sentences longer than `max_sen_length` will be shortened
-					to first `max_sen_length` tokens. Default: 50.
+			max_sent_length (int): All sentences longer than `max_sent_length` will be shortened
+					to first `max_sent_length` tokens. Default: 50.
 			invalid_vocab_times (int):  A cut-off threshold of invalid tokens. All tokens appear
 					not less than `invalid_vocab_times` in the **whole dataset** (except valid words) will be
 					marked as invalid words. Otherwise, they are unknown words, both in training or
@@ -123,11 +123,11 @@ class SST(SentenceClassification):
 	'''
 
 	def __init__(self, file_id, min_vocab_times=10, \
-			max_sen_length=50, invalid_vocab_times=0):
+			max_sent_length=50, invalid_vocab_times=0):
 		self._file_id = file_id
 		self._file_path = get_resource_file_path(file_id)
 		self._min_vocab_times = min_vocab_times
-		self._max_sen_length = max_sen_length
+		self._max_sent_length = max_sent_length
 		self._invalid_vocab_times = invalid_vocab_times
 		super(SST, self).__init__()
 
@@ -182,7 +182,7 @@ class SST(SentenceClassification):
 		def line2id(line):
 			return ([self.go_id] + \
 					list(map(lambda word: word2id[word] if word in word2id else self.unk_id, line)) \
-					+ [self.eos_id])[:self._max_sen_length]
+					+ [self.eos_id])[:self._max_sent_length]
 
 		data = {}
 		data_size = {}
@@ -209,7 +209,7 @@ class SST(SentenceClassification):
 			cut_num = np.sum( \
 				np.maximum( \
 					np.array(length) - \
-					self._max_sen_length + \
+					self._max_sent_length + \
 					1, \
 					0))
 			print( \

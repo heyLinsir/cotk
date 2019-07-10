@@ -48,17 +48,17 @@ class MetricBase(LoadClassInterface, metaclass=DocStringInheritor):
 		r"""label_key (str):
 			The key of reference sentence labels. Default: ``label``."""
 	LABEL_ARGUMENTS = r"""* **data[label_key]** (list or :class:`numpy.ndarray`):
-				  A 1-d jagged or padded array of int.
+				  A 1-d array of int.
 				  Size: ``[batch_size]``,
-				  each element refers to label of one example"""
+				  each element refers to label of one sample"""
 
 	PREDICTION_KEY_ARGUMENTS = \
 		r"""prediction_key (str):
 			The key of reference sentence predictions. Default: ``prediction``."""
 	PREDICTION_ARGUMENTS = r"""* **data[prediction_key]** (list or :class:`numpy.ndarray`):
-				  A 1-d jagged or padded array of int.
+				  A 1-d array of int.
 				  Size: ``[batch_size]``,
-				  each element refers to prediction for one example"""
+				  each element refers to prediction for one sample"""
 
 	MULTI_TURN_REFERENCE_ALLVOCABS_KEY_ARGUMENTS = \
 		r"""multi_turn_reference_allvocabs_key (str):
