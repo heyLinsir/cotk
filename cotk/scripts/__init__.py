@@ -1,1 +1,1 @@
-from .report import main as report
+from .entry import main

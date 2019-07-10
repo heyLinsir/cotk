@@ -1,6 +1,6 @@
 # coding:utf-8
 
-def run():
+def run(*argv):
 	import argparse
 	import time
 
@@ -40,7 +40,7 @@ def run():
 		help='Enter debug mode (using ptvsd).')
 	parser.add_argument('--cache', action='store_true',
 		help='Use cache for speeding up load data and wordvec. (It may cause problems when you switch dataset.)')
-	cargs = parser.parse_args()
+	cargs = parser.parse_args(argv)
 
 	# Editing following arguments to bypass command line.
 	args.name = cargs.name or time.strftime("run%Y%m%d_%H%M%S", time.localtime())
@@ -70,7 +70,7 @@ def run():
 	args.grad_clip = 5.0
 	args.show_sample = [0]
 	args.min_vocab_times = 50
-	args.max_sen_length = 50
+	args.max_sent_length = 50
 	args.max_turn_length = 11
 	args.checkpoint_steps = 1000
 	args.checkpoint_max_to_keep = 5
@@ -79,7 +79,9 @@ def run():
 	random.seed(0)
 
 	from main import main
+
 	main(args)
 
 if __name__ == '__main__':
-	run()
+	import sys
+	run(*sys.argv[1:])

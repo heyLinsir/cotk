@@ -37,7 +37,7 @@ setup(
 	],
 	extras_require={
 		'develop':  [
-			"torch==1.0.0",
+			"torch>=1.0.0",
 			"python-coveralls",
 			"pytest-dependency",
 			"pytest-mock",
@@ -50,7 +50,7 @@ setup(
 	cmdclass={'test': LibTest},
 	entry_points={
 		'console_scripts': [
-			"cotk=cotk.scripts:main",
+			"cotk=cotk.scripts.entry:main",
 		]
 	},
 	include_package_data=True,
