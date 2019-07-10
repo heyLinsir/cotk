@@ -302,7 +302,8 @@ class BERTOpenSubtitles(BERTGenerationBase):
 
 		post_tokens, post_bert_ids = [], []
 		resp_tokens, resp_bert_ids = [], []
-		pool = Pool(multiprocessing.cpu_count(), initializer=self._set_tokenizer, initargs=(self.tokenizer, ))
+		pool = Pool(multiprocessing.cpu_count(), \
+	      initializer=self._set_tokenizer, initargs=(self.tokenizer, ))
 		for _post_tokens, _post_bert_ids, _resp_tokens, _resp_bert_ids in \
 			tqdm.tqdm(pool.imap_unordered(self._run_tokenize, tasks, chunksize=500), \
 			total=len(posts)):
@@ -325,7 +326,7 @@ class BERTOpenSubtitles(BERTGenerationBase):
 			f_file = open("%s/opensub_pair_%s.post" % (self._file_path, key))
 			g_file = open("%s/opensub_pair_%s.response" % (self._file_path, key))
 			post_tokens, post_bert_ids, resp_tokens, resp_bert_ids = \
-							self._mp_process(f_file.readlines(), g_file.readlines())
+						self._mp_process(f_file.readlines(), g_file.readlines())
 			origin_data[key] = {}
 			origin_data[key]['post'] = post_tokens
 			origin_data[key]['resp'] = resp_tokens
@@ -358,7 +359,7 @@ class BERTOpenSubtitles(BERTGenerationBase):
 		for key in self.key_name:
 			data[key] = {}
 			data[key]['post_bert'] = origin_data[key]['post_bert']
-			data[key]['resp_bert'] = origin_data[key]['resp_bert']			
+			data[key]['resp_bert'] = origin_data[key]['resp_bert']
 
 			data[key]['post'] = list(map(line2id, origin_data[key]['post']))
 			data[key]['resp'] = list(map(line2id, origin_data[key]['resp']))

@@ -4,6 +4,8 @@ A module for dataloader
 import random
 from .._utils import trim_before_target
 from .._utils.metaclass import DocStringInheritor, LoadClassInterface
+from ..metric import MetricChain, PerplexityMetric, LanguageGenerationRecorder, \
+	FwBwBleuCorpusMetric, SelfBleuCorpusMetric
 
 class Dataloader(LoadClassInterface, metaclass=DocStringInheritor):
 	'''Base class of Dataloader.
@@ -295,7 +297,7 @@ except ImportError as err:
 	BertTokenizer = DummyObject(err)
 
 class BERTGenerationBase(LanguageProcessingBase):
-	r"""Base class for all BERT-based language generation datasets with BERT tokenizer. 
+	r"""Base class for all BERT-based language generation datasets with BERT tokenizer.
 	This is an abstract class.
 
 	Arguments:{ARGUMENTS}
@@ -346,12 +348,36 @@ class BERTGenerationBase(LanguageProcessingBase):
 			self.bertid2id[value] = self.word2id[key]
 
 	def tokenize(self, sentence):
+		'''Convert sentence(str) to list of token(str)
+
+		Arguments:
+				sentence (str)
+
+		Returns:
+				sent (list): list of token(str)
+		'''
 		return self.tokenizer.tokenize(sentence)
 
 	def convert_tokens_to_bert_ids(self, sent):
+		'''Convert list of token(str) to list of bert id(int)
+
+		Arguments:
+				sent (list): list of token(str)
+
+		Returns:
+				bert_ids (list): list of bert id(int)
+		'''
 		return self.tokenizer.convert_tokens_to_ids(sent)
 
 	def convert_bert_ids_to_ids(self, sent, invalid_vocab=False):
+		'''Convert list of bert id(int) to list of id(int)
+
+		Arguments:
+				sent (list): list of bert id(int)
+
+		Returns:
+				ids (list): list of id(int)
+		'''
 		new_sent = []
 		for bert_id in sent:
 			new_id = self.bertid2id[bert_id]
@@ -361,15 +387,47 @@ class BERTGenerationBase(LanguageProcessingBase):
 		return new_sent
 
 	def convert_tokens_to_ids(self, sent, invalid_vocab=False):
+		'''Convert list of token(str) to list of id(int)
+
+		Arguments:
+				sent (list): list of token(str)
+
+		Returns:
+				ids (list): list of id(int)
+		'''
 		return self.sen_to_index(sent, invalid_vocab=invalid_vocab)
 
 	def convert_ids_to_tokens(self, index, trim=True):
+		'''Convert list of id(int) to list of token(str)
+
+		Arguments:
+				index (list): list of id(int)
+
+		Returns:
+				sent (list): list of token(str)
+		'''
 		return self.index_to_sen(index, trim=trim)
 
 	def convert_ids_to_bert_ids(self, index):
+		'''Convert list of id(int) to list of bert id(int)
+
+		Arguments:
+				index (list): list of id(int)
+
+		Returns:
+				bert_ids (list): list of bert id(int)
+		'''
 		return list(map(lambda word: self.id2bertid[word], index))
 
 	def convert_bert_ids_to_tokens(self, sent, trim=True):
+		'''Convert list of bert id(int) to list of token(str)
+
+		Arguments:
+				sent (list): list of bert id(int)
+
+		Returns:
+				(list): list of token(str)
+		'''
 		if trim:
 			sent = trim_before_target(list(sent), self.bert_eos_id)
 			idx = len(sent)
@@ -403,7 +461,8 @@ class BERTGenerationBase(LanguageProcessingBase):
 				* resp (:class:`numpy.array`): A 2-d padding array containing id of words in responses.
 			  	  Only provide valid vocabs. `unk_id` will be used if a word is not valid.
 			  	  Size: `[batch_size, max(sent_length)]`
-			  	* resp_bert (:class:`numpy.array`): A 2-d padding array containing BERT id of words in responses.
+			  	* resp_bert (:class:`numpy.array`): 
+			  	  A 2-d padding array containing BERT id of words in responses.
 			  	  Size: `[batch_size, max(sent_length)]`
 				* resp_allvocabs (:class:`numpy.array`):
 				  A 2-d padding array containing id of words in responses.
