@@ -278,16 +278,17 @@ except ImportError as err:
 	from .._utils.imports import DummyObject
 	BertTokenizer = DummyObject(err)
 
-class BERTGenerationBase(GenerationBase):
-	r"""Base class for all language generation datasets with BERT tokenizer. This is an abstract class.
+class BERTGenerationBase(LanguageProcessingBase):
+	r"""Base class for all BERT-based language generation datasets with BERT tokenizer. 
+	This is an abstract class.
 
 	Arguments:{ARGUMENTS}
 
 	Attributes:{ATTRIBUTES}
 	"""
 
-	ARGUMENTS = GenerationBase.ARGUMENTS
-	ATTRIBUTES = GenerationBase.ATTRIBUTES
+	ARGUMENTS = LanguageProcessingBase.ARGUMENTS
+	ATTRIBUTES = LanguageProcessingBase.ATTRIBUTES
 
 	def __init__(self, \
 					key_name=None, \
@@ -376,6 +377,8 @@ class BERTGenerationBase(GenerationBase):
 				* post (:class:`numpy.array`): A 2-d padding array containing id of words in posts.
 			  	  Only provide valid words. `unk_id` will be used if a word is not valid.
 			  	  Size: `[batch_size, max(sent_length)]`
+			  	* post_bert (:class:`numpy.array`): A 2-d padding array containing BERT id of words in posts.
+			  	  Size: `[batch_size, max(sent_length)]`
 				* post_allvocabs (:class:`numpy.array`): A 2-d padding array containing id of words in posts.
 			  	  Provide both valid and invalid vocabs.
 			  	  Size: `[batch_size, max(sent_length)]`
@@ -384,37 +387,12 @@ class BERTGenerationBase(GenerationBase):
 				* resp (:class:`numpy.array`): A 2-d padding array containing id of words in responses.
 			  	  Only provide valid vocabs. `unk_id` will be used if a word is not valid.
 			  	  Size: `[batch_size, max(sent_length)]`
+			  	* resp_bert (:class:`numpy.array`): A 2-d padding array containing BERT id of words in responses.
+			  	  Size: `[batch_size, max(sent_length)]`
 				* resp_allvocabs (:class:`numpy.array`):
 				  A 2-d padding array containing id of words in responses.
 			  	  Provide both valid and invalid vocabs.
 			  	  Size: `[batch_size, max(sent_length)]`
-
-		Examples:
-			>>> # all_vocab_list = ["<pad>", "<unk>", "<go>", "<eos>", "how", "are", "you",
-			>>> #	"hello", "i", "am", "fine"]
-			>>> # vocab_size = 9
-			>>> # vocab_list = ["<pad>", "<unk>", "<go>", "<eos>", "how", "are", "you", "hello", "i"]
-			>>> dataloader.get_batch('train', [0, 1])
-			{
-				"post_allvocabs": numpy.array([
-					[2, 5, 6, 10, 3],   # first post: <go> are you fine <eos>
-					[2, 7, 3, 0, 0],   # second post: <go> hello <eos> <pad> <pad>
-				]),
-				"post": numpy.array([
-					[2, 5, 6, 1, 3],   # first post: <go> are you <unk> <eos>
-					[2, 7, 3, 0, 0],   # second post: <go> hello <eos> <pad> <pad>
-				]),
-				"resp_allvocabs": numpy.array([
-					[2, 8, 9, 10, 3],  # first response: <go> i am fine <eos>
-					[2, 7, 3, 0, 0],   # second response: <go> hello <eos> <pad> <pad>
-				]),
-				"resp": numpy.array([
-					[2, 8, 1, 1, 3],  # first response: <go> i <unk> <unk> <eos>
-					[2, 7, 3, 0, 0],   # second response: <go> hello <eos> <pad> <pad>
-				]),
-				"post_length": numpy.array([5, 3]), # length of posts
-				"resp_length": numpy.array([5, 3]), # length of responses
-			}
 		'''
 		if key not in self.key_name:
 			raise ValueError("No set named %s." % key)

@@ -231,17 +231,18 @@ class BERTOpenSubtitles(BERTGenerationBase):
 
 	Arguments:
 		file_id (str): a str indicates the source of OpenSubtitles dataset.
-		file_type (str): a str indicates the type of OpenSubtitles dataset. Default: "OpenSubtitles"
 		min_vocab_times (int): A cut-off threshold of `UNK` tokens. All tokens appear
 			less than `min_vocab_times`	will be replaced by `<unk>`. Default: 10.
-		max_sen_length (int): All sentences longer than `max_sen_length` will be shortened
+		max_sent_length (int): All sentences longer than `max_sen_length` will be shortened
 			to first `max_sen_length` tokens. Default: 50.
 		invalid_vocab_times (int):  A cut-off threshold of invalid tokens. All tokens appear
 			not less than `invalid_vocab_times` in the **whole dataset** (except valid words) will be
 			marked as invalid vocabs. Otherwise, they are unknown words, both in training or
 			testing stages. Default: 0 (No unknown words).
+		bert_vocab (str): The vocab file of BERT used for this task. It should be a bert model name
+							or local path. Default: `bert-base-uncased`.
 
-	Refer to :class:`.SingleTurnDialog` for attributes and methods.
+	Refer to :class:`.BERTGenerationBase` for attributes and methods.
 
 	References:
 		[1] http://opus.nlpl.eu/OpenSubtitles.php
@@ -251,12 +252,12 @@ class BERTOpenSubtitles(BERTGenerationBase):
 	'''
 
 	def __init__(self, file_id, min_vocab_times=10, \
-			max_sen_length=50, invalid_vocab_times=0, \
+			max_sent_length=50, invalid_vocab_times=0, \
 			bert_vocab='bert-base-uncased'):
 		self._file_id = file_id
 		self._file_path = get_resource_file_path(file_id)
 		self._min_vocab_times = min_vocab_times
-		self._max_sen_length = max_sen_length
+		self._max_sent_length = max_sent_length
 		self._invalid_vocab_times = invalid_vocab_times
 		super(BERTOpenSubtitles, self).__init__(bert_vocab=bert_vocab)
 
@@ -285,16 +286,16 @@ class BERTOpenSubtitles(BERTGenerationBase):
 			tqdm.tqdm(pool.imap_unordered(self._run_tokenize, tasks, chunksize=500), \
 			total=len(posts)):
 			post_tokens.append(_post_tokens)
-			post_bert_ids.append(_post_bert_ids[:self._max_sen_length])
+			post_bert_ids.append(_post_bert_ids[:self._max_sent_length])
 			resp_tokens.append(_resp_tokens)
-			resp_bert_ids.append(_resp_bert_ids[:self._max_sen_length])
+			resp_bert_ids.append(_resp_bert_ids[:self._max_sent_length])
 		pool.close()
 		pool.join()
 
 		return post_tokens, post_bert_ids, resp_tokens, resp_bert_ids
 
 	def _load_data(self):
-		r'''Loading dataset, invoked by `SingleTurnDialog.__init__`
+		r'''Loading dataset, invoked by `BERTGenerationBase.__init__`
 		'''
 		print('begin load data...')
 		begin_time = time.time()
@@ -329,7 +330,7 @@ class BERTOpenSubtitles(BERTGenerationBase):
 		word2id = {w: i for i, w in enumerate(vocab_list)}
 		line2id = lambda line: ( \
 						list(map(lambda word: word2id[word], line)) \
-					)[:self._max_sen_length]
+					)[:self._max_sent_length]
 
 		data = {}
 		data_size = {}
@@ -350,7 +351,7 @@ class BERTOpenSubtitles(BERTGenerationBase):
 						lambda word: word not in valid_vocab_set, \
 						vocab))) - oov_num
 			length = list(map(len, origin_data[key]['post'] + origin_data[key]['resp']))
-			cut_num = np.sum(np.maximum(np.array(length) - self._max_sen_length + 1, 0))
+			cut_num = np.sum(np.maximum(np.array(length) - self._max_sent_length + 1, 0))
 			print("%s set. invalid rate: %f, unknown rate: %f, max length before cut: %d, \
 					cut word rate: %f" % \
 					(key, invalid_num / vocab_num, oov_num / vocab_num, max(length), cut_num / vocab_num))

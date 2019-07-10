@@ -6,9 +6,10 @@ your model from one dataset to other datasets.
 """
 
 from .dataloader import Dataloader, GenerationBase, BERTGenerationBase
-from .single_turn_dialog import SingleTurnDialog, OpenSubtitles
+from .single_turn_dialog import SingleTurnDialog, OpenSubtitles, BERTOpenSubtitles
 from .multi_turn_dialog import MultiTurnDialog, UbuntuCorpus, SwitchboardCorpus
 from .language_generation import LanguageGeneration, MSCOCO
 
 __all__ = ['Dataloader', 'SingleTurnDialog', 'OpenSubtitles', 'MultiTurnDialog', 'UbuntuCorpus', \
-           'SwitchboardCorpus', 'LanguageGeneration', 'MSCOCO', 'GenerationBase']
+           'SwitchboardCorpus', 'LanguageGeneration', 'MSCOCO', 'GenerationBase', \
+           'BERTOpenSubtitles']
