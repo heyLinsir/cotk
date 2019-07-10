@@ -1,4 +1,4 @@
-## CVAE -- a tensorflow implementation
+## CVAE (TensorFlow)
 
 CVAE is a basic model for multiple turn dialog. You can refer to the following papers for details:
 
@@ -8,12 +8,11 @@ Zhao, T., Zhao, R., & Eskenazi, M. (2017). Learning discourse-level diversity fo
 ### Require Packages
 
 * cotk
-* TensorFlow == 1.3
+* TensorFlow == 1.13.1
 * TensorBoardX >= 1.4
 
 ### Quick Start
 
-* Downloading dataset and save it to ``./data``. (Dataset will be released soon.)
 * Execute ``python run.py`` to train the model.
   * The default dataset is ``SwitchboardCorpus``. You can use ``--dataset`` to specify other ``dataloader`` class.
   * It don't use pretrained word vector by default setting. You can use ``--wvclass`` to specify ``wordvector`` class. For example: ``--wvclass gloves``
@@ -27,6 +26,7 @@ Zhao, T., Zhao, R., & Eskenazi, M. (2017). Learning discourse-level diversity fo
 
 ### Arguments
 
+```none
     usage: run.py [-h] [--name NAME] [--restore RESTORE] [--mode MODE]
                   [--dataset DATASET] [--datapath DATAPATH] [--epoch EPOCH]
                   [--wvclass WVCLASS] [--wvpath WVPATH] [--out_dir OUT_DIR]
@@ -44,7 +44,7 @@ Zhao, T., Zhao, R., & Eskenazi, M. (2017). Learning discourse-level diversity fo
                             "best" for best checkpoints on dev. Attention: "last"
                             and "best" wiil cause unexpected behaviour when run 2
                             models in the same dir at the same time. Default: None
-                            (don't load anything)
+                            (dont load anything)
       --mode MODE           "train" or "test". Default: train
       --dataset DATASET     Dataloader class. Default: OpenSubtitles
       --datapath DATAPATH   Directory for data set. Default: ./data
@@ -65,17 +65,13 @@ Zhao, T., Zhao, R., & Eskenazi, M. (2017). Learning discourse-level diversity fo
       --debug               Enter debug mode (using ptvsd).
       --cache               Use cache for speeding up load data and wordvec. (It
                        	    may cause problems when you switch dataset.)
-#### For developer
+```
 
-* Arguments above (except ``cache``\\``debug``) are required. You should remain the same behavior (not for implementation).
-
-* You can add more arguments if you want.
-
-### An example of tensorboard
+### TensorBoard Example
 
 Execute ``tensorboard --logdir=./tensorboard``, you will see the plot in tensorboard pages:
 
-![CVAE_plot_example](images/CVAE-plot-example.png)
+![CVAE_plot_example](./images/CVAE-plot-example.png)
 
 Following plot are shown in this model:
 
@@ -86,13 +82,13 @@ Following plot are shown in this model:
 * test/loss
 * test/perplexity
 
-### An example of test output
+### Case Study of Model Results
 
 Execute ``python run.py --mode test --restore best``
 
 The following output will be in `./output/[name]_[dev|test].txt`:
 
-```
+```none
 perplexity:	46.376537
 bleu:	0.077950
 session: 	0
@@ -124,27 +120,23 @@ session: 	0
 
 ```
 
-#### For developer
-
-- You should remain similar output in this task.
-
 ### Performance
 
 |               | SwitchboardCorpus |
 | ------------- | ----------------- |
 | Perplexity (KL) | 21.70 (12.20) |
-| BLEU-1 precision | 0.13610096174113043 |
-| BLEU-1 recall | 0.04107955330116912 |
-| BLEU-2 precision | 0.022377578693671962 |
-| BLEU-2 recall | 0.006170739692356583 |
-| BLEU-3 precision | 0.0039785479627456165 |
-| BLEU-3 recall | 0.0011547747149167798 |
-| BLEU-4 precision | 0.0005179246307354963 |
-| BLEU-4 recall | 0.0001631668312096369 |
-| avg-bow precision | 0.9454527495106744 |
-| avg-bow recall | 0.2303857347459659 |
-| extrema-bow precision | 0.9023087747864434 |
-| extrema-bow recall | 0.21619671889790235 |
+| BLEU-1 precision | 0.13610 |
+| BLEU-1 recall | 0.04108 |
+| BLEU-2 precision | 0.02238 |
+| BLEU-2 recall | 0.00617 |
+| BLEU-3 precision | 0.00398 |
+| BLEU-3 recall | 0.00115 |
+| BLEU-4 precision | 0.00052 |
+| BLEU-4 recall | 0.00016 |
+| avg-bow precision | 0.94545 |
+| avg-bow recall | 0.23039 |
+| extrema-bow precision | 0.90231 |
+| extrema-bow recall | 0.21620 |
 
 ### Author
 

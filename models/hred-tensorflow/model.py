@@ -3,7 +3,7 @@ import tensorflow as tf
 import time
 
 from tensorflow.python.ops.nn import dynamic_rnn
-from utils.output_projection import output_projection_layer
+from utils.output_projection import output_projection_layer, MyDense
 from utils import SummaryHelper
 
 class HredModel(object):
@@ -55,7 +55,7 @@ class HredModel(object):
 			_, self.context_state = cell_ctx(encoder_state, self.init_states)
 
 		# get output projection function
-		output_fn = tf.layers.Dense(data.vocab_size, use_bias = True)
+		output_fn = MyDense(data.vocab_size, use_bias = True)
 		sampled_sequence_loss = output_projection_layer(args.dh_size, data.vocab_size, args.softmax_samples)
 
 		# construct helper and attention
@@ -76,10 +76,10 @@ class HredModel(object):
 			self.decoder_distribution_teacher, self.decoder_loss = sampled_sequence_loss(self.decoder_output, self.responses_target, self.decoder_mask)
 
 		# build decoder (test)
-		with tf.variable_scope('decoder', reuse=tf.AUTO_REUSE):
+		with tf.variable_scope('decoder', reuse=True):
 			decoder_infer = tf.contrib.seq2seq.BasicDecoder(cell_dec_attn, infer_helper, dec_start, output_layer = output_fn)
 			infer_outputs, _, _ = tf.contrib.seq2seq.dynamic_decode(decoder_infer, impute_finished = True,
-					maximum_iterations=args.max_sen_length, scope = "decoder_rnn")
+					maximum_iterations=args.max_sent_length, scope = "decoder_rnn")
 			self.decoder_distribution = infer_outputs.rnn_output
 			self.generation_index = tf.argmax(tf.split(self.decoder_distribution,
 				[2, data.vocab_size-2], 2)[1], 2) + 2 # for removing UNK
@@ -269,7 +269,7 @@ class HredModel(object):
 			batch_results = []
 			for response_id in batched_responses_id:
 				response_id_list = response_id.tolist()
-				response_token = data.index_to_sen(response_id_list)
+				response_token = data.convert_ids_to_tokens(response_id_list)
 				if data.eos_id in response_id_list:
 					result_id = response_id_list[:response_id_list.index(data.eos_id)+1]
 				else:
@@ -338,14 +338,14 @@ class HredModel(object):
 			metric1_data = {
 					'sent_allvocabs': batched_data['sent_allvocabs'],
 					'sent_length': batched_data['sent_length'],
-					'gen_log_prob': batched_gen_prob,
+					'multi_turn_gen_log_prob': batched_gen_prob,
 					}
 			metric1.forward(metric1_data)
 			metric2_data = {
 					'context_allvocabs': [],
-					'reference_allvocabs': batched_data['sent_allvocabs'],
+					'sent_allvocabs': batched_data['sent_allvocabs'],
 					'turn_length': batched_data['turn_length'],
-					'gen': batched_gen,
+					'multi_turn_gen': batched_gen,
 					}
 			metric2.forward(metric2_data)
 			batched_data = data.get_next_batch("test")
@@ -373,3 +373,4 @@ class HredModel(object):
 						f.write("gen:\n")
 
 		print("result output to %s" % test_file)
+		return {key: val for key, val in res.items() if type(val) in [bytes, int, float]}

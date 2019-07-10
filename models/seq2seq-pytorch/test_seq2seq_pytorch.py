@@ -3,6 +3,7 @@ import random
 from run import run
 from main import main
 import os
+import json
 import shutil
 cwd = os.path.abspath(os.path.dirname(__file__))
 path = os.path.split(cwd)[0]
@@ -81,3 +82,9 @@ def test_test(mocker):
 		main(args, *others)
 	mock = mocker.patch('main.main', side_effect=side_effect_test)
 	run()
+	old_res = json.load(open("./result.json", "r"))
+	run()
+	new_res = json.load(open("./result.json", "r"))
+	for key in old_res:
+		if key[-9:] == 'hashvalue':
+			assert old_res[key] == new_res[key]

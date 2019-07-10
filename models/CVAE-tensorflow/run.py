@@ -1,6 +1,6 @@
 # coding:utf-8
 
-def run(argv):
+def run(*argv):
 	import argparse
 	import time
 
@@ -77,7 +77,7 @@ def run(argv):
 	args.grad_clip = 5.0
 	args.show_sample = [0]
 	args.min_vocab_times = 5
-	args.max_sen_length = 50
+	args.max_sent_length = 50
 	args.max_turn_length = 1000
 	args.checkpoint_steps = 1
 	args.checkpoint_max_to_keep = 5
@@ -87,12 +87,8 @@ def run(argv):
 
 	from main import main
 
-	if args.mode == 'test':
-		import json
-		json.dump({'working_dir': './', 'entry': 'run', 'args': argv}, \
-				  open("result.json", "w"))
 	main(args)
 
 if __name__ == '__main__':
 	import sys
-	run(sys.argv[1:])
+	run(*sys.argv[1:])

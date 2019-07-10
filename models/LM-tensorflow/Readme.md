@@ -1,4 +1,4 @@
-## LM -- a tensorflow implementation
+## Language Model (TensorFlow)
 
 
 
@@ -32,56 +32,49 @@ An implementation of LM(language model).
 
 ### Arguments
 
-```
-usage: run.py [-h] [--name NAME] [--restore RESTORE] [--mode MODE]
-              [--dataset DATASET] [--datapath DATAPATH] [--epoch EPOCH]
-              [--wvclass WVCLASS] [--wvpath WVPATH] [--out_dir OUT_DIR]
-              [--log_dir LOG_DIR] [--model_dir MODEL_DIR]
-              [--cache_dir CACHE_DIR] [--cpu] [--debug] [--cache]
+```none
+    usage: run.py [-h] [--name NAME] [--restore RESTORE] [--mode MODE]
+                  [--dataset DATASET] [--datapath DATAPATH] [--epoch EPOCH]
+                  [--wvclass WVCLASS] [--wvpath WVPATH] [--out_dir OUT_DIR]
+                  [--log_dir LOG_DIR] [--model_dir MODEL_DIR]
+                  [--cache_dir CACHE_DIR] [--cpu] [--debug] [--cache]
 
-A language model
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --name NAME           The name of your model, used for variable scope and
-                        tensorboard, etc. Default: runXXXXXX_XXXXXX
-                        (initialized by current time)
-  --restore RESTORE     Checkpoints name to load. "last" for last checkpoints,
-                        "best" for best checkpoints on dev. Attention: "last"
-                        and "best" wiil cause unexpected behaviour when run 2
-                        models in the same dir at the same time. Default: None
-                        (don't load anything)
-  --mode MODE           "train" or "test". Default: train
-  --dataset DATASET     Dataloader class. Default: MSCOCO
-  --datapath DATAPATH   Directory for data set. Default: ./data
-  --epoch EPOCH         Epoch for trainning. Default: 10
-  --wvclass WVCLASS     Wordvector class, None for using Glove pretrained
-                        wordvec. Default: None
-  --wvpath WVPATH       Path for pretrained wordvector. Default: wordvec
-  --out_dir OUT_DIR     Output directory for test output. Default: ./output
-  --log_dir LOG_DIR     Log directory for tensorboard. Default: ./tensorboard
-  --model_dir MODEL_DIR
-                        Checkpoints directory for model. Default: ./model
-  --cache_dir CACHE_DIR
-                        Checkpoints directory for cache. Default: ./cache
-  --cpu                 Use cpu.
-  --debug               Enter debug mode (using ptvsd).
-  --cache               Use cache for speeding up load data and wordvec. (It
-                        may cause problems when you switch dataset.)
+    optional arguments:
+      -h, --help            show this help message and exit
+      --name NAME           The name of your model, used for variable scope and
+                            tensorboard, etc. Default: runXXXXXX_XXXXXX
+                            (initialized by current time)
+      --restore RESTORE     Checkpoints name to load. "last" for last checkpoints,
+                            "best" for best checkpoints on dev. Attention: "last"
+                            and "best" wiil cause unexpected behaviour when run 2
+                            models in the same dir at the same time. Default: None
+                            (dont load anything)
+      --mode MODE           "train" or "test". Default: train
+      --dataset DATASET     Dataloader class. Default: MSCOCO
+      --datapath DATAPATH   Directory for data set. Default: ./data
+      --epoch EPOCH         Epoch for trainning. Default: 10
+      --wvclass WVCLASS     Wordvector class, None for using Glove pretrained
+                            wordvec. Default: None
+      --wvpath WVPATH       Path for pretrained wordvector. Default: wordvec
+      --out_dir OUT_DIR     Output directory for test output. Default: ./output
+      --log_dir LOG_DIR     Log directory for tensorboard. Default: ./tensorboard
+      --model_dir MODEL_DIR
+                            Checkpoints directory for model. Default: ./model
+      --cache_dir CACHE_DIR
+                            Checkpoints directory for cache. Default: ./cache
+      --cpu                 Use cpu.
+      --debug               Enter debug mode (using ptvsd).
+      --cache               Use cache for speeding up load data and wordvec. (It
+                            may cause problems when you switch dataset.)
 ```
 
 For hyperparameter settings, please refer to `run.py`.
 
 
 
-#### For developer
-
-- Arguments above (except ``cache``\\``debug``) are required. You should remain the same behavior (not for implementation).
-- You can add more arguments if you want.
 
 
-
-### An example of tensorboard
+### TensorBoard Example
 
 Execute ``tensorboard --logdir=./tensorboard``, you will see the plot in tensorboard pages:
 
@@ -89,77 +82,46 @@ Following plot are shown in this model:
 
 - loss: reconstruction loss.
 
-  ![loss](image/loss.png)
+  ![loss](./images/loss.png)
 
 - perplexity: reconstruction perplexity.
 
-  ![perplexity](image/perplexity.png)
+  ![perplexity](./images/perplexity.png)
 
 
 And text output:
 
-```{  
+```none
 
-{
 "epochs": 10,  
-
 "lr": 0.1,  
-
 "log_dir": "./tensorboard",  
-
 "name": "LM",  
-
 "max_sen_length": 50,  
-
 "checkpoint_max_to_keep": 5,  
-
 "embedding_size": 300,  
-
 "momentum": 0.9,  
-
 "checkpoint_steps": 1000,  
-
 "datapath": "resources://MSCOCO~tsinghua",  
-
 "cache": false,  
-
 "debug": false,  
-
 "wvclass": null,  
-
 "restore": "last",  
-
 "show_sample": [  
-
 0
-
 ],  
-
 "wvpath": null,  
-
 "dh_size": 200,  
-
 "batch_size": 128,  
-
 "lr_decay": 0.995,  
-
 "model_dir": "./model",  
-
 "out_dir": "./output",  
-
 "cache_dir": "./cache",  
-
 "softmax_samples": 512,  
-
 "mode": "train",  
-
 "grad_clip": 5.0,  
-
 "dataset": "MSCOCO",  
-
 "cuda": true  
-
-}
 
 ```
 
@@ -171,13 +133,13 @@ Following text are shown in this model:
 
 
 
-### An example of test output
+### Case Study of Model Results
 
 Execute ``python run.py --mode test --restore last``
 
 The following output will be in `./output/[name]_test.txt`:
 
-```
+```none
 self-bleu-3:	0.709417
 bw-bleu-3:	0.513164
 self-bleu-4:	0.515631
@@ -213,19 +175,13 @@ A man is in two legs and in a couch . a .
 A man is two legs of a person on out a television .
 A in a helmet a on front of a building of people .
 A man is standing on a dog on a laptop .
-...
 
 ```
-
-#### For developer
-
-- You should remain similar output in this task.
-
 
 
 ### Performance
 
-|        | Reconstruction Perplexity |
+|        | Perplexity |
 | ------ | ------------------------- |
 | MSCOCO | 13.41                     |
 

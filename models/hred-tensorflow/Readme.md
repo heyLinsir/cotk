@@ -1,4 +1,4 @@
-## HRED -- a tensorflow implementation
+## HRED (TensorFlow)
 
 HRED is a basic model for multiple turn dialog. Here, we implement HRED with attention mechanism. You can refer to the following papers for details:
 
@@ -8,7 +8,7 @@ Serban, I. V., Sordoni, A., Bengio, Y., Courville, A. C., & Pineau, J. (2016, Fe
 ### Require Packages
 
 * cotk
-* TensorFlow == 1.3
+* TensorFlow == 1.13.1
 * TensorBoardX >= 1.4
 
 ### Quick Start
@@ -27,6 +27,7 @@ Serban, I. V., Sordoni, A., Bengio, Y., Courville, A. C., & Pineau, J. (2016, Fe
 
 ### Arguments
 
+```none
     usage: run.py [-h] [--name NAME] [--restore RESTORE] [--mode MODE]
                   [--dataset DATASET] [--datapath DATAPATH] [--epoch EPOCH]
                   [--wvclass WVCLASS] [--wvpath WVPATH] [--out_dir OUT_DIR]
@@ -44,7 +45,7 @@ Serban, I. V., Sordoni, A., Bengio, Y., Courville, A. C., & Pineau, J. (2016, Fe
                             "best" for best checkpoints on dev. Attention: "last"
                             and "best" wiil cause unexpected behaviour when run 2
                             models in the same dir at the same time. Default: None
-                            (don't load anything)
+                            (dont load anything)
       --mode MODE           "train" or "test". Default: train
       --dataset DATASET     Dataloader class. Default: OpenSubtitles
       --datapath DATAPATH   Directory for data set. Default: ./data
@@ -65,17 +66,13 @@ Serban, I. V., Sordoni, A., Bengio, Y., Courville, A. C., & Pineau, J. (2016, Fe
       --debug               Enter debug mode (using ptvsd).
       --cache               Use cache for speeding up load data and wordvec. (It
                        	    may cause problems when you switch dataset.)
-#### For developer
+```
 
-* Arguments above (except ``cache``\\``debug``) are required. You should remain the same behavior (not for implementation).
-
-* You can add more arguments if you want.
-
-### An example of tensorboard
+### TensorBoard Example
 
 Execute ``tensorboard --logdir=./tensorboard``, you will see the plot in tensorboard pages:
 
-![hred_plot_example](images/hred-plot-example.png)
+![hred_plot_example](./images/hred-plot-example.png)
 
 Following plot are shown in this model:
 
@@ -90,21 +87,22 @@ Following plot are shown in this model:
 
 And text output:
 
-![hred_text_example](images/hred-text-example.png)
+![hred_text_example](./images/hred-text-example.png)
 
 Following text are shown in this model:
 
 * args
 
-### An example of test output
+### Case Study of Model Results
 
 Execute ``python run.py --mode test --restore best``
 
 The following output will be in `./output/[name]_[dev|test].txt`:
 
-```
+```none
 perplexity:     74.407300
 bleu:   0.089069
+
 post:   anyone knows why my stock oneiric exports env var <unk> I mean what is that used for? I know of $USER but not <unk> . My precise install doesn't export USERNAME <eos>
 resp:   looks like it used to be exported by <unk> but the line had the comment <unk> <unk> Is this <unk> so I guess it isn't surprising it is gone <eos>
 gen:    you <eos>
@@ -118,7 +116,7 @@ post:   <unk> <eos>
 resp:   nice thanks! <eos>
 gen:    I <eos>
 
-post:   i set up my hd such that i have to type a passphrase to access it at boot. how can i remove that <unk> and just boot up normal. i did this at install, it works fine, just tired of having re       boots where i need to be at terminal
+post:   i set up my hd such that i have to type a passphrase to access it at boot. how can i remove that <unk> and just boot up normal. i did this at install, it works fine, just tired of having reboots where i need to be at terminal
 resp:   backup your data, and re-install without encryption "might" be the easiest method <eos>
 gen:    you can install the ubuntu package <eos>
 post:   backup your data, and re-install without encryption "might" be the easiest method <eos>
@@ -126,9 +124,6 @@ resp:   so you dont know, ok, anyone else? <eos> you are like, yah my mouse does
 gen:    I have no idea what you mean by the <eos>
 ```
 
-#### For developer
-
-- You should remain similar output in this task.
 
 ### Performance
 

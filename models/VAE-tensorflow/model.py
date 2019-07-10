@@ -309,7 +309,7 @@ class VAEModel(object):
 			for response_id in batched_responses_id:
 				result_token = []
 				response_id_list = response_id.tolist()
-				response_token = data.index_to_sen(response_id_list)
+				response_token = data.convert_ids_to_tokens(response_id_list)
 				if data.eos_id in response_id_list:
 					result_id = response_id_list[:response_id_list.index(data.eos_id)+1]
 				else:
@@ -340,3 +340,4 @@ class VAEModel(object):
 				f.write("%s\n" % " ".join(res['gen'][i]))
 
 		print("result output to %s." % test_file)
+		return {key: val for key, val in res.items() if type(val) in [bytes, int, float]}

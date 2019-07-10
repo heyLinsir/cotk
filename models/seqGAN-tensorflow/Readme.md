@@ -1,4 +1,4 @@
-## seqGAN -- a tensorflow implementation
+## SeqGAN (TensorFlow)
 
 ![seqGAN-model](https://github.com/ChenChengKuan/SeqGAN_tensorflow/blob/master/misc/seqgan.png)
 
@@ -9,7 +9,7 @@ Lantao Yu, Weinan Zhang, Jun Wang, Yong Yu. SeqGAN: Sequence Generative Adversar
 ### Require Packages
 
 - cotk
-- TensorFlow == 1.3
+- TensorFlow == 1.13.1
 - TensorBoardX >= 1.4
 
 ### Quick Start
@@ -30,55 +30,44 @@ Lantao Yu, Weinan Zhang, Jun Wang, Yong Yu. SeqGAN: Sequence Generative Adversar
 
 ### Arguments
 
-```
-usage: run.py [-h] [--name NAME] [--restore RESTORE] [--mode MODE]
-              [--dataset DATASET] [--datapath DATAPATH]
-              [--wvclass WVCLASS] [--wvpath WVPATH] [--out_dir OUT_DIR]
-              [--log_dir LOG_DIR] [--model_dir MODEL_DIR]
-              [--cache_dir CACHE_DIR] [--cpu] [--debug] [--cache]
+```none
+    usage: run.py [-h] [--name NAME] [--restore RESTORE] [--mode MODE]
+                  [--dataset DATASET] [--datapath DATAPATH]
+                  [--wvclass WVCLASS] [--wvpath WVPATH] [--out_dir OUT_DIR]
+                  [--log_dir LOG_DIR] [--model_dir MODEL_DIR]
+                  [--cache_dir CACHE_DIR] [--cpu] [--debug] [--cache]
 
-A VAE language generation model
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --name NAME           The name of your model, used for variable scope and
-                        tensorboard, etc. Default: runXXXXXX_XXXXXX
-                        (initialized by current time)
-  --restore RESTORE     Checkpoints name to load. "last" for last checkpoints,
-                        "best" for best checkpoints on dev. Attention: "last"
-                        and "best" wiil cause unexpected behaviour when run 2
-                        models in the same dir at the same time. Default: None
-                        (don't load anything)
-  --mode MODE           "train" or "test". Default: train
-  --dataset DATASET     Dataloader class. Default: MSCOCO
-  --datapath DATAPATH   Directory for data set. Default: ./data
-  --wvclass WVCLASS     Wordvector class, None for using Glove pretrained
-                        wordvec. Default: None
-  --wvpath WVPATH       Path for pretrained wordvector. Default: wordvec
-  --out_dir OUT_DIR     Output directory for test output. Default: ./output
-  --log_dir LOG_DIR     Log directory for tensorboard. Default: ./tensorboard
-  --model_dir MODEL_DIR
-                        Checkpoints directory for model. Default: ./model
-  --cache_dir CACHE_DIR
-                        Checkpoints directory for cache. Default: ./cache
-  --cpu                 Use cpu.
-  --debug               Enter debug mode (using ptvsd).
-  --cache               Use cache for speeding up load data and wordvec. (It
-                        may cause problems when you switch dataset.)
+    optional arguments:
+      -h, --help            show this help message and exit
+      --name NAME           The name of your model, used for variable scope and
+                            tensorboard, etc. Default: runXXXXXX_XXXXXX
+                            (initialized by current time)
+      --restore RESTORE     Checkpoints name to load. "last" for last checkpoints,
+                            "best" for best checkpoints on dev. Attention: "last"
+                            and "best" wiil cause unexpected behaviour when run 2
+                            models in the same dir at the same time. Default: None
+                            (dont load anything)
+      --mode MODE           "train" or "test". Default: train
+      --dataset DATASET     Dataloader class. Default: MSCOCO
+      --datapath DATAPATH   Directory for data set. Default: ./data
+      --wvclass WVCLASS     Wordvector class, None for using Glove pretrained
+                            wordvec. Default: None
+      --wvpath WVPATH       Path for pretrained wordvector. Default: wordvec
+      --out_dir OUT_DIR     Output directory for test output. Default: ./output
+      --log_dir LOG_DIR     Log directory for tensorboard. Default: ./tensorboard
+      --model_dir MODEL_DIR Checkpoints directory for model. Default: ./model
+      --cache_dir CACHE_DIR Checkpoints directory for cache. Default: ./cache
+      --cpu                 Use cpu.
+      --debug               Enter debug mode (using ptvsd).
+      --cache               Use cache for speeding up load data and wordvec. (It
+                            may cause problems when you switch dataset.)
 ```
 
 For hyperparameter settings, please refer to `run.py`.
 
 
 
-#### For developer
-
-- Arguments above (except ``cache``\\``debug``) are required. You should remain the same behavior (not for implementation).
-- You can add more arguments if you want.
-
-
-
-### An example of tensorboard
+### TensorBoard Example
 
 Execute ``tensorboard --logdir=./tensorboard``, you will see the plot in tensorboard pages:
 
@@ -86,30 +75,30 @@ Following plot are shown in this model:
 
 - gen_loss: loss when pre-training the generator.
 
-  ![](images/gen_loss.png)
+  ![](./images/gen_loss.png)
 
 - gen_reward: average reward when adversarially training the generator.
 
-  ![](images/gen_rewards.png)
+  ![](./images/gen_rewards.png)
 
 - dis_loss: loss when pre-training and adversarially training the discriminator.
 
-  ![](images/dis_loss.png)
+  ![](./images/dis_loss.png)
 
 - dis_accuracy: accuracy when pre-training and adversarially training
 
-  ![](images/dis_acc.png)
+  ![](./images/dis_acc.png)
 
 
 
 
-### An example of test output
+### Case Study of Model Results
 
 Execute ``python run.py --mode test --restore best``
 
 The following output will be in `./output/[name]_test.txt`:
 
-```
+```none
 self-bleu-4:0.129181
 bw-bleu-4:0.464359
 fw-bw-bleu-2:0.569625
@@ -143,10 +132,6 @@ People walking down a street outside , at night .
 A white cat laying on top of a bed .
 ...
 ```
-
-#### For developer
-
-- You should remain similar output in this task.
 
 
 
