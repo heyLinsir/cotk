@@ -15,7 +15,7 @@ def load_file_from_url(url, force=False, cache_dir=None):
 	Arguments:
 		url(str): A url indicating the file online.
 		force(bool): Force to download and ignore the existing file.
-		cache_dir(str, option): A path indicating where the cache place. 
+		cache_dir(str, option): A path indicating where the cache place.
 		If ``None``, a default cache path is used.
 
 	Returns:
