@@ -45,8 +45,6 @@ def modify_args(args):
 	args.log_dir = os.path.join(cwd, 'tensorboard_test')
 	args.model_dir = os.path.join(cwd, 'model_test')
 	args.cache_dir = os.path.join(cwd, 'cache_test')
-	args.bert_vocab = "/home/niuyilin/pretrained_BERT/bert-base-uncased-vocab.txt"
-	args.bert_model = "/home/niuyilin/pretrained_BERT/bert-base-uncased.tar.gz"
 
 	args.name = 'test_seq2seq_pytorch_bert'
 	args.wvclass = 'Glove'
