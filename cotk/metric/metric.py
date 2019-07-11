@@ -1546,6 +1546,6 @@ class AccuracyMetric(MetricBase):
 		'''
 		result = super().close()
 		result.update({"accuracy": \
-			nltk.classify.accuracy(self.refs, self.hyps), \
+			np.mean(np.array(self.refs) == np.array(self.hyps)), \
 			"accuracy hashvalue": self._hashvalue()})
 		return result

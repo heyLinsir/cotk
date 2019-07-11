@@ -173,8 +173,8 @@ class Classification(BaseModel):
 			with torch.no_grad():
 				self.net.forward(incoming)
 			data = incoming.data
-			data.prediction = imcoming.result.prediction
-			data.label = imcoming.data.label
+			data.prediction = incoming.result.prediction.detach().cpu().numpy()
+			data.label = incoming.data.label.detach().cpu().numpy()
 			metric.forward(data)
 		res = metric.close()
 
