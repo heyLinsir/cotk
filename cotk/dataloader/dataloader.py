@@ -367,7 +367,6 @@ class BERTLanguageProcessingBase(LanguageProcessingBase):
 		Returns:
 				bert_ids (list): list of bert id(int)
 		'''
-		sent = self.tokenize(' '.join(sent))
 		return self.tokenizer.convert_tokens_to_ids(sent)
 
 	def convert_bert_ids_to_ids(self, sent, invalid_vocab=False):

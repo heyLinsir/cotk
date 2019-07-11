@@ -193,7 +193,7 @@ class TestOpenSubtitles(TestSingleTurnDialog):
 	@pytest.mark.dependency()
 	def test_init(self, load_opensubtitles):
 		super().base_test_init(load_opensubtitles())
-		super().base_test_all_unknown(load_opensubtitles(1000000))
+		super().base_test_all_unknown(load_opensubtitles(10000))
 
 	def test_restart(self, load_opensubtitles):
 		super().base_test_restart(load_opensubtitles())
