@@ -27,6 +27,7 @@ your models fairly with baselines.
    dataloader
    wordvector
    metric
+   resources
 
 .. toctree::
    :glob:
