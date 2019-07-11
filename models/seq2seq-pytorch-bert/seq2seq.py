@@ -9,7 +9,7 @@ import numpy as np
 import tqdm
 
 from utils import Storage, cuda, BaseModel, SummaryHelper, get_mean, storage_to_list, \
-	CheckpointManager
+	CheckpointManager, LongTensor
 from network import Network
 
 class Seq2seq(BaseModel):
@@ -172,9 +172,9 @@ class Seq2seq(BaseModel):
 				self.net.forward(incoming)
 				gen_log_prob = nn.functional.log_softmax(incoming.gen.w, -1)
 			data = incoming.data
-			data.resp = incoming.data.resp_allvocabs
+			data.resp_allvocabs = LongTensor(incoming.data.resp_allvocabs)
 			data.resp_length = incoming.data.resp_length
-			data.gen_log_prob = gen_log_prob.transpose(1, 0).detach().cpu().numpy()
+			data.gen_log_prob = gen_log_prob.transpose(1, 0)
 			metric1.forward(data)
 		res = metric1.close()
 
@@ -186,8 +186,6 @@ class Seq2seq(BaseModel):
 			with torch.no_grad():
 				self.net.detail_forward(incoming)
 			data = incoming.data
-			data.resp = incoming.data.resp_allvocabs
-			data.post = incoming.data.post_allvocabs
 			data.gen = incoming.gen.w_o.detach().cpu().numpy().transpose(1, 0)
 			metric2.forward(data)
 		res.update(metric2.close())
@@ -208,10 +206,12 @@ class Seq2seq(BaseModel):
 				f.write("gen:\t%s\n" % " ".join(res['gen'][i]))
 			f.flush()
 		logging.info("result output to %s.", filename)
+		return {key: val for key, val in res.items() if type(val) in [bytes, int, float]}
 
 	def test_process(self):
 		logging.info("Test Start.")
 		self.net.eval()
 		self.test("dev")
-		self.test("test")
+		test_res = self.test("test")
 		logging.info("Test Finish.")
+		return test_res
