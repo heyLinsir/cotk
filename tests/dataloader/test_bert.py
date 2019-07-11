@@ -191,7 +191,7 @@ def load_opensubtitles():
 	def _load_opensubtitles(invalid_vocab_times=0):
 		return BERTOpenSubtitles("./tests/dataloader/dummy_opensubtitles", \
 					invalid_vocab_times=invalid_vocab_times, \
-					bert_vocab="/home/niuyilin/pretrained_BERT/bert-base-uncased-vocab.txt")
+					bert_vocab="bert-base-uncased")
 	return _load_opensubtitles
 
 class TestBertOpenSubtitles(TestBertBase):
