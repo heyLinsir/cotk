@@ -1,15 +1,36 @@
 Resources
 ===================================
-Set ``file_id=resources://name[@source][#processor]`` when using :meth:`._utils.file_utils.get_resource_file_path` and :meth:`._utils.file_utils.import_local_resources`. ``source`` and ``processor`` are optional. Examples:
 
-===================================  =======  ===============  ===================================
-file_id                              name     source           processor  
-===================================  =======  ===============  ===================================
-resources://MSCOCO                   MSCOCO   default(amazon)  Default(MSCOCOResourceProcessor)
-resources://MSCOCO@tsinghua          MSCOCO   tsinghua         Default(MSCOCOResourceProcessor)
-resources://MSCOCO#MSCOCO            MSCOCO   default(amazon)  MSCOCOResourceProcessor
-resources://MSCOCO@tsinghua#MSCOCO   MSCOCO   tsinghua         MSCOCOResourceProcessor
-===================================  =======  ===============  ===================================
+Classes like :class:`.dataloder.Dataloader` usually need ``file_id`` to locate
+resources. The string will be passed to :meth:`._utils.file_utils.get_resource_file_path` or
+:meth:`._utils.file_utils.import_local_resources`.
+
+The format  of ``file_id`` is ``resources://name[@source][#processor]``,
+where ``source`` and ``processor`` are optional.
+
+``name`` can be:
+
+    * A string start with "resources://", indicating predefined resources.
+    * A string start with "https://" indicating online resources.
+    * A string indicating local path, absolute or relative to cwd.
+
+``source`` only works when ``name`` indicating a predefined resources.
+It has to be one of a source defined for each resources, see the following
+sections for reference.
+
+``preprocessor`` is necessary when ``name`` is not a predefined resources.
+It has to be one of the subclass of :class:`._utils.file_utils.ResourceProcessor`.
+
+Examples:
+
+============================================================================  =======  ===============  ===================================
+file_id                                                                       name     source           processor  
+============================================================================  =======  ===============  ===================================
+resources://MSCOCO                                                            MSCOCO   default(amazon)  Default(MSCOCOResourceProcessor)
+resources://MSCOCO@tsinghua                                                   MSCOCO   tsinghua         Default(MSCOCOResourceProcessor)
+https://cotk-data.s3-ap-northeast-1.amazonaws.com/mscoco.zip#MSCOCO           MSCOCO   None             MSCOCOResourceProcessor
+./mscoco.zip#MSCOCO                                                           MSCOCO   None             MSCOCOResourceProcessor
+============================================================================  =======  ===============  ===================================
 
 Word Vector
 ----------------------------------
