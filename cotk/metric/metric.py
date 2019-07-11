@@ -3,6 +3,7 @@ r"""
 It provides a fair metric for every model.
 """
 import random
+import os
 from itertools import chain
 import multiprocessing
 from multiprocessing import Pool
@@ -124,6 +125,12 @@ class MetricBase(LoadClassInterface, metaclass=DocStringInheritor):
 				r"""* **data[turn_len_key]** (list or :class:`numpy.ndarray`):
 				  Length of turns in each sample.
 				  Size: ``[batch_size]``."""
+
+	CPU_COUNT_ARGUMENTS = \
+		r"""cpu_count (int): Number of used cpu for multiprocessing. Multiprocessing will **NOT** be used
+			when ``cpu_count`` is set to ``1`` or the dataset is small. Default: if ``None``,
+			the environment variable ``CPU_COUNT`` will be used	when it is set,
+			or all available cpu will be used otherwise."""
 
 	def __init__(self):
 		self.unordered_hash = UnorderedSha256()
@@ -306,6 +313,22 @@ class BleuPrecisionRecallMetric(_PrecisionRecallMetric):
 		self.res_prefix = 'BLEU-{}'.format(ngram)
 		self._hash_relevant_data([ngram, generated_num_per_context])
 
+	def _replace_unk(self, _input, _target=-1):
+		'''Auxiliary function for replacing the unknown words:
+
+		Arguments:
+			_input (list): the references or hypothesis.
+			_target: the target word index used to replace the unknown words.
+
+		Returns:
+
+			* list: processed result.
+		'''
+		output = []
+		for ele in _input:
+			output.append(_target if ele == self.dataloader.unk_id else ele)
+		return output
+
 	def _score(self, gen, reference):
 		r'''Score function of BLEU-ngram precision and recall.
 
@@ -316,6 +339,7 @@ class BleuPrecisionRecallMetric(_PrecisionRecallMetric):
 		Returns:
 			int: score \in [0, 1].
 		'''
+		gen = self._replace_unk(gen)
 		return sentence_bleu([reference], gen, self.weights, SmoothingFunction().method1)
 
 class EmbSimilarityPrecisionRecallMetric(_PrecisionRecallMetric):
@@ -476,7 +500,7 @@ class PerplexityMetric(MetricBase):
 
 		if self.engine_version == "pytorch":
 			if not isinstance(resp_allvocabs, torch.Tensor):
-				resp_allvocabs = gen_log_prob.new_tensor(resp_allvocabs)
+				resp_allvocabs = gen_log_prob.new_tensor(resp_allvocabs).long()
 			with torch.no_grad():
 				self._pytorch_forward(resp_allvocabs, resp_length, gen_log_prob)
 		else:
@@ -676,9 +700,6 @@ class PerplexityMetric(MetricBase):
 			self.gen_valid_log_prob = []
 			self.gen_unk_log_prob = []
 
-		print(self.word_loss)
-		print(self.length_sum)
-
 		res.update({"perplexity": np.exp(self.word_loss / self.length_sum), \
 				"perplexity hashvalue": self._hashvalue()})
 		return res
@@ -825,6 +846,25 @@ class BleuCorpusMetric(MetricBase):
 			self.refs.append([reference])
 		self._hash_relevant_data(relevant_data)
 
+	def _replace_unk(self, _input, _target=-1):
+		'''Auxiliary function for replacing the unknown words:
+
+		Arguments:
+			_input (list): the references or hypothesis.
+			_target: the target word index used to replace the unknown words.
+
+		Returns:
+
+			* list: processed result.
+		'''
+		output = []
+		for _list in _input:
+			_output = []
+			for ele in _list:
+				_output.append(_target if ele == self.dataloader.unk_id else ele)
+			output.append(_output)
+		return output
+
 	def close(self):
 		'''
 		Returns:
@@ -835,6 +875,7 @@ class BleuCorpusMetric(MetricBase):
 			  for same evaluation settings.
 		'''
 		result = super().close()
+		self.hyps = self._replace_unk(self.hyps)
 		try:
 			result.update({"bleu": \
 				corpus_bleu(self.refs, self.hyps, smoothing_function=SmoothingFunction().method7), \
@@ -855,8 +896,8 @@ class SelfBleuCorpusMetric(MetricBase):
 		{MetricBase.DATALOADER_ARGUMENTS}
 		{MetricBase.GEN_KEY_ARGUMENTS}
 		sample (int): Number of examples sampled from the generated sentences. Default: ``1000``.
-		seed (int): random seed for sampling. Default: ``1229``.
-
+		seed (int): Random seed for sampling. Default: ``1229``.
+		{MetricBase.CPU_COUNT_ARGUMENTS}
 	Warning:
 		the calculation of ``hashvalue`` considers the actual sample size of hypotheses which
 			will be less than ``sample`` if the size of hypotheses is smaller than ``sample``
@@ -865,7 +906,8 @@ class SelfBleuCorpusMetric(MetricBase):
 	def __init__(self, dataloader, \
 		gen_key="gen", \
 		sample=1000, \
-		seed=1229):
+		seed=1229, \
+		cpu_count=None):
 		super().__init__()
 		self.dataloader = dataloader
 		self.gen_key = gen_key
@@ -873,6 +915,12 @@ class SelfBleuCorpusMetric(MetricBase):
 		self.refs = []
 		self.hyps = []
 		self.seed = seed
+		if cpu_count is not None:
+			self.cpu_count = cpu_count
+		elif "CPU_COUNT" in os.environ and os.environ["CPU_COUNT"] is not None:
+			self.cpu_count = os.environ["CPU_COUNT"]
+		else:
+			self.cpu_count = multiprocessing.cpu_count()
 
 	def forward(self, data):
 		'''Processing a batch of data.
@@ -891,7 +939,8 @@ class SelfBleuCorpusMetric(MetricBase):
 		for gen_sen in gen:
 			self.hyps.append(self.dataloader.trim_index(gen_sen))
 
-	def _run_f(self, ele):
+	@classmethod
+	def _run_f(cls, ele):
 		'''Auxiliary function for computing sentence bleu:
 
 		Arguments:
@@ -902,6 +951,25 @@ class SelfBleuCorpusMetric(MetricBase):
 			* int: **sentence-bleu** value.
 		'''
 		return sentence_bleu(ele[0], ele[1], smoothing_function=SmoothingFunction().method1)
+
+	def _replace_unk(self, _input, _target=-1):
+		'''Auxiliary function for replacing the unknown words:
+
+		Arguments:
+			_input (list): the references or hypothesis.
+			_target: the target word index used to replace the unknown words.
+
+		Returns:
+
+			* list: processed result.
+		'''
+		output = []
+		for _list in _input:
+			_output = []
+			for ele in _list:
+				_output.append(_target if ele == self.dataloader.unk_id else ele)
+			output.append(_output)
+		return output
 
 	def close(self):
 		'''
@@ -917,18 +985,19 @@ class SelfBleuCorpusMetric(MetricBase):
 		random.seed(self.seed)
 		random.shuffle(self.hyps)
 		ref = self.hyps[:self.sample]
+		_ref = self._replace_unk(ref)
 
 		bleu_irl = []
-		if self.sample >= 1000:
-			tasks = ((ref[:i]+ref[i+1:self.sample], ref[i]) for i in range(self.sample))
-			pool = Pool(multiprocessing.cpu_count())
+		if self.sample >= 1000 and self.cpu_count > 1:
+			tasks = ((ref[:i]+ref[i+1:self.sample], _ref[i]) for i in range(self.sample))
+			pool = Pool(self.cpu_count)
 			for ans in tqdm.tqdm(pool.imap_unordered(self._run_f, tasks, chunksize=20), total=self.sample):
 				bleu_irl.append(ans)
 			pool.close()
 			pool.join()
 		elif self.sample > 1:
 			for i in range(self.sample):
-				bleu_irl.append(self._run_f((ref[:i]+ref[i+1:], ref[i])))
+				bleu_irl.append(self._run_f((ref[:i]+ref[i+1:], _ref[i])))
 		self._hash_relevant_data([self.seed, self.sample])
 		res.update({"self-bleu" : 1.0 * sum(bleu_irl) / len(bleu_irl),\
 					"self-bleu hashvalue": self._hashvalue()})
@@ -944,9 +1013,9 @@ class FwBwBleuCorpusMetric(MetricBase):
 		{MetricBase.GEN_KEY_ARGUMENTS}
 		sample (int): Number of examples sampled from the generated sentences. Default: ``1000``.
 		seed (int): random seed for sampling. Default: ``1229``.
-
+		{MetricBase.CPU_COUNT_ARGUMENTS}
 	Warning:
-		The calculation of ``hashvalue`` considers the actual sample size of hypotheses and 
+		The calculation of ``hashvalue`` considers the actual sample size of hypotheses and
 		references. Therefore ``hashvalue`` may vary with the size of hypothesis or references
 		if the size of them is smaller than ``sample``.
 	'''
@@ -955,13 +1024,20 @@ class FwBwBleuCorpusMetric(MetricBase):
 			reference_test_key, \
 			gen_key="gen", \
 			sample=1000, \
-			seed=1229):
+			seed=1229, \
+			cpu_count=None):
 		super().__init__()
 		self.dataloader = dataloader
 		self.reference_test_key = reference_test_key
 		self.gen_key = gen_key
 		self.sample = sample
 		self.seed = seed
+		if cpu_count is not None:
+			self.cpu_count = cpu_count
+		elif "CPU_COUNT" in os.environ and os.environ["CPU_COUNT"] is not None:
+			self.cpu_count = os.environ["CPU_COUNT"]
+		else:
+			self.cpu_count = multiprocessing.cpu_count()
 		self.refs = []
 		self.hyps = []
 
@@ -981,7 +1057,8 @@ class FwBwBleuCorpusMetric(MetricBase):
 		for gen_sen in gen:
 			self.hyps.append(list(self.dataloader.trim_index(gen_sen)))
 
-	def _run_f(self, ele):
+	@classmethod
+	def _run_f(cls, ele):
 		'''Auxiliary function for computing sentence bleu:
 
 		Arguments:
@@ -992,6 +1069,25 @@ class FwBwBleuCorpusMetric(MetricBase):
 			* int: **sentence-bleu** value.
 		'''
 		return sentence_bleu(ele[0], ele[1], smoothing_function=SmoothingFunction().method1)
+
+	def _replace_unk(self, _input, _target=-1):
+		'''Auxiliary function for replacing the unknown words:
+
+		Arguments:
+			_input (list): the references or hypothesis.
+			_target: the target word index used to replace the unknown words.
+
+		Returns:
+
+			* list: processed result.
+		'''
+		output = []
+		for _list in _input:
+			_output = []
+			for ele in _list:
+				_output.append(_target if ele == self.dataloader.unk_id else ele)
+			output.append(_output)
+		return output
 
 	def close(self):
 		'''
@@ -1015,10 +1111,12 @@ class FwBwBleuCorpusMetric(MetricBase):
 		random.shuffle(self.hyps)
 		random.shuffle(self.refs)
 
+		self.hyps = self._replace_unk(self.hyps)
+
 		bleu_irl_fw, bleu_irl_bw = [], []
-		if sample_hyps >= 1000:
+		if sample_hyps >= 1000 and self.cpu_count > 1:
 			tasks = ((self.refs, self.hyps[i]) for i in range(sample_hyps))
-			pool = Pool(multiprocessing.cpu_count())
+			pool = Pool(self.cpu_count)
 			for ans in tqdm.tqdm(pool.imap_unordered(self._run_f, tasks, chunksize=20), total=sample_hyps):
 				bleu_irl_fw.append(ans)
 			pool.close()
@@ -1027,9 +1125,9 @@ class FwBwBleuCorpusMetric(MetricBase):
 			for i in range(sample_hyps):
 				bleu_irl_fw.append(self._run_f((self.refs, self.hyps[i])))
 
-		if sample_refs >= 1000:
+		if sample_refs >= 1000 and self.cpu_count > 1:
 			tasks = ((self.hyps, self.refs[i]) for i in range(sample_refs))
-			pool = Pool(multiprocessing.cpu_count())
+			pool = Pool(self.cpu_count)
 			for ans in tqdm.tqdm(pool.imap_unordered(self._run_f, tasks, chunksize=20), total=sample_refs):
 				bleu_irl_bw.append(ans)
 			pool.close()
@@ -1108,6 +1206,25 @@ class MultiTurnBleuCorpusMetric(MetricBase):
 				self.hyps.append(list(self.dataloader.trim_index(gen_session[j])))
 				self.refs.append([list(self.dataloader.trim_index(ref_session[j])[1:])])
 
+	def _replace_unk(self, _input, _target=-1):
+		'''Auxiliary function for replacing the unknown words:
+
+		Arguments:
+			_input (list): the references or hypothesis.
+			_target: the target word index used to replace the unknown words.
+
+		Returns:
+
+			* list: processed result.
+		'''
+		output = []
+		for _list in _input:
+			_output = []
+			for ele in _list:
+				_output.append(_target if ele == self.dataloader.unk_id else ele)
+			output.append(_output)
+		return output
+
 	def close(self):
 		'''
 		Returns:
@@ -1119,6 +1236,8 @@ class MultiTurnBleuCorpusMetric(MetricBase):
 		'''
 		result = super().close()
 		self._hash_relevant_data(self.refs)
+
+		self.hyps = self._replace_unk(self.hyps)
 
 		try:
 			result.update({"bleu": \
@@ -1267,8 +1386,6 @@ class MultiTurnDialogRecorder(MetricBase):
 				np.array(reference_allvocabs[i]), turn_length=turn_length[i], ignore_first_token=True))
 			self.gen_list.append(self.dataloader.convert_multi_turn_ids_to_tokens( \
 				np.array(gen[i]), turn_length=turn_length[i]))
-			print(turn_length[i])
-			print(len(self.reference_list[-1]))
 
 			if len(self.reference_list[-1]) != len(self.gen_list[-1]):
 				raise ValueError("Reference turn num %d != gen turn num %d." % \

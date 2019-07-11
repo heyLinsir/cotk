@@ -14,11 +14,14 @@ pretrained baseline models and other useful utilities for evaluating
 your models fairly with baselines.
 
 .. toctree::
-   :glob:
    :maxdepth: 2
-   :caption: Notes
+   :caption: Tutorials
 
-   notes/*
+   notes/installation
+   notes/tutorial_core
+   notes/tutorial_cli
+   notes/extend
+   notes/FAQ
 
 .. toctree::
    :maxdepth: 2
@@ -32,7 +35,7 @@ your models fairly with baselines.
 .. toctree::
    :glob:
    :maxdepth: 2
-   :caption: Model Tutorial
+   :caption: Model Zoo
 
    models/LanguageGeneration/index
    models/SingleTurnDialog/index
