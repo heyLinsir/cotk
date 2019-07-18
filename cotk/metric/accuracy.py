@@ -1,7 +1,7 @@
 r"""
 Containing some classes and functions about accuracy evaluating results of models.
 """
-import nltk
+import numpy as np
 from .metric import MetricBase
 
 class AccuracyMetric(MetricBase):
