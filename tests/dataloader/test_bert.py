@@ -90,8 +90,8 @@ class TestBertBase():
 			length = len(dl.data[key]['post'])
 			for i in range(length):
 				batch = dl.get_batch(key, [i])
-				assert dl.unk_id not in batch["post_allvocabs"]
-				assert dl.unk_id not in batch["resp_allvocabs"]
+				assert dl.unk_id in batch["post_allvocabs"]
+				assert dl.unk_id in batch["resp_allvocabs"]
 				batch = dl.get_batch(key, [i])
 				if dl.unk_id in batch["post"] or \
 					dl.unk_id in batch["resp"]:
@@ -191,7 +191,7 @@ def load_opensubtitles():
 	def _load_opensubtitles(invalid_vocab_times=0):
 		return BERTOpenSubtitles("./tests/dataloader/dummy_opensubtitles", \
 					invalid_vocab_times=invalid_vocab_times, \
-					bert_vocab_name="bert-base-uncased")
+					bert_vocab_name="./tests/dataloader/dummy_bert/bert-base-uncased-vocab.txt")
 	return _load_opensubtitles
 
 class TestBertOpenSubtitles(TestBertBase):
